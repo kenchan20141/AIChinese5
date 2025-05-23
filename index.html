@@ -829,9 +829,6 @@
 
 
 
-  
-
-
 const audio = document.getElementById('audio');
 const playPauseBtn = document.getElementById('play-pause');
 const musicSelect = document.getElementById('music-select');
@@ -1762,7 +1759,8 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-   async function callAPI(prompt) {
+
+async function callAPI(prompt) {
     try {
         const response = await fetch('/api/deepseek', {
             method: 'POST',
@@ -1783,6 +1781,7 @@ async function submitArgumentOutline() {
         throw new Error("API 調用失敗，請稍後再試");
     }
 }
+
 
         
         // 生成寫作題目
