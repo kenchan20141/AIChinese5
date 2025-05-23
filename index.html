@@ -1760,10 +1760,9 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-
-async function callAPI(prompt) {
+    async function callAPI(prompt) {
   try {
-    const response = await fetch('/api/deepseek', {
+    const response = await fetch('http://localhost:3000/api/deepseek', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1772,17 +1771,20 @@ async function callAPI(prompt) {
     });
 
     if (!response.ok) {
-      throw new Error(`API 調用失敗: ${response.statusText}`);
+      throw new Error(`後端服務回應錯誤: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.choices[0].message.content.trim();
+    let content = data.choices[0].message.content.trim();
+    if (!content) {
+      throw new Error("API 回應無有效內容");
+    }
+    return content;
   } catch (error) {
-    console.error(error);
-    throw new Error("API 調用失敗");
+    console.error("調用 API 時出錯:", error);
+    throw error;
   }
 }
-
         
         // 生成寫作題目
         async function generateTopic() {
