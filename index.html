@@ -829,16 +829,6 @@
 
 
 
-        
-        // API 配置信息
-        const API_KEYS = [
-            "sk-MoqwsgO8P9MEoCrftvdSYA"
-        ];
-        let currentApiKeyIndex = 0;
-        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
-        const MODEL = "DeepSeek-R1";
-
-
 const audio = document.getElementById('audio');
 const playPauseBtn = document.getElementById('play-pause');
 const musicSelect = document.getElementById('music-select');
@@ -1769,57 +1759,26 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-     async function callAPI(prompt) {
-    let attempts = 0;
-    const maxAttempts = API_KEYS.length;
-    while (attempts < maxAttempts) {
-        try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: MODEL,
-                    messages: [{ 
-                        role: "user", 
-                        content: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。" 
-                    }]
-                })
-            });
+    async function callAPI(prompt) {
+  try {
+    const response = await fetch('/api/handler', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt })
+    });
 
-            if (response.status === 429) {
-                currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-                attempts++;
-                continue;
-            }
-
-            if (!response.ok) {
-                throw new Error(`API 調用失敗: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            let content = data.choices[0].message.content.trim();
-
-            // 強化過濾邏輯，移除所有可能的 <think> 標籤變體
-            content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
-
-            // 驗證過濾後內容是否有效
-            if (!content) {
-                throw new Error("API 回應無效或過濾後無內容");
-            }
-
-            return content;
-        } catch (error) {
-            console.error(error);
-            currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
-            attempts++;
-            if (attempts >= maxAttempts) {
-                throw new Error("所有 API 密鑰均無法使用");
-            }
-        }
+    if (!response.ok) {
+      throw new Error(`API 調用失敗: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error(error);
+    throw new Error("API 調用失敗");
+  }
 }
         // 生成寫作題目
         async function generateTopic() {
