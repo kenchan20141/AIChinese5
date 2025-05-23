@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -1760,8 +1761,10 @@ async function submitArgumentOutline() {
 
         // 通用 API 調用函數
      async function callAPI(prompt) {
+  const API_URL = "https://v0-new-project-dbxbq2jdjbp-bmjjmhog8-kcs-projects-5b85a9f8.vercel.app/api/chat"; // 替換為你的Vercel項目URL
+
   try {
-    const response = await fetch('/api/deepseek', {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -1774,12 +1777,13 @@ async function submitArgumentOutline() {
     }
 
     const data = await response.json();
-    return data.choices[0].message.content.trim();
+    return data.result;
   } catch (error) {
     console.error(error);
     throw new Error("API 調用失敗");
   }
 }
+
 
         
         // 生成寫作題目
