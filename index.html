@@ -829,6 +829,15 @@
 
 
 
+        
+        // API 配置信息
+        const API_KEYS = [
+            "sk-MoqwsgO8P9MEoCrftvdSYA"
+        ];
+        let currentApiKeyIndex = 0;
+        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
+        const MODEL = "DeepSeek-R1";
+
 
 const audio = document.getElementById('audio');
 const playPauseBtn = document.getElementById('play-pause');
@@ -1760,32 +1769,26 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-    async function callAPI(prompt) {
+   // API 調用函數，指向後端
+async function callAPI(prompt) {
   try {
     const response = await fetch('http://localhost:3000/api/deepseek', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt }),
     });
-
     if (!response.ok) {
-      throw new Error(`後端服務回應錯誤: ${response.statusText}`);
+      throw new Error(`後端響應失敗: ${response.statusText}`);
     }
-
     const data = await response.json();
-    let content = data.choices[0].message.content.trim();
-    if (!content) {
-      throw new Error("API 回應無有效內容");
-    }
-    return content;
+    return data.choices[0].message.content.trim();
   } catch (error) {
-    console.error("調用 API 時出錯:", error);
+    console.error('調用 API 時出錯:', error);
     throw error;
   }
 }
-        
         // 生成寫作題目
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
