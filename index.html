@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -826,6 +825,7 @@
 
     
     <script>
+
 
 
 
@@ -1759,29 +1759,27 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
+     async function callAPI(prompt) {
+  try {
+    const response = await fetch('/api/deepseek', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt })
+    });
 
-async function callAPI(prompt) {
-    try {
-        const response = await fetch('/api/deepseek', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt })
-        });
-
-        if (!response.ok) {
-            throw new Error(`後端請求失敗: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-    } catch (error) {
-        console.error("調用 API 時出錯:", error);
-        throw new Error("API 調用失敗，請稍後再試");
+    if (!response.ok) {
+      throw new Error(`API 調用失敗: ${response.statusText}`);
     }
-}
 
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error(error);
+    throw new Error("API 調用失敗");
+  }
+}
 
         
         // 生成寫作題目
