@@ -829,15 +829,6 @@
 
 
 
-        
-        // API 配置信息
-        const API_KEYS = [
-            "sk-MoqwsgO8P9MEoCrftvdSYA"
-        ];
-        let currentApiKeyIndex = 0;
-        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
-        const MODEL = "DeepSeek-R1";
-
 
 const audio = document.getElementById('audio');
 const playPauseBtn = document.getElementById('play-pause');
@@ -1774,12 +1765,13 @@ async function submitArgumentOutline() {
     const maxAttempts = API_KEYS.length;
     while (attempts < maxAttempts) {
         try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
-                    "Content-Type": "application/json"
-                },
+            async function callAPI(prompt) {
+  try {
+    const response = await fetch('/api/deepseek', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
                 body: JSON.stringify({
                     model: MODEL,
                     messages: [{ 
