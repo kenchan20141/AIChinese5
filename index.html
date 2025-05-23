@@ -821,8 +821,7 @@
 
         
         // API 配置信息
-        const API_KEYS = [
-            "sk-buNeXlY8PafDWYpau2OPDA"
+        const API_KEY = process.env.API_KEY;
         ];
         let currentApiKeyIndex = 0;
         const API_URL = "https://api.deepseek.com/v1/chat/completions";
