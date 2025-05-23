@@ -829,6 +829,8 @@
 
 
 
+  
+
 
 const audio = document.getElementById('audio');
 const playPauseBtn = document.getElementById('play-pause');
@@ -1760,35 +1762,26 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
+   async function callAPI(prompt) {
+    try {
+        const response = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt })
+        });
 
-const MODEL = "deepseek-reasoner"; // 保留模型名稱
-        
-async function callAPI(prompt) {
-  const proxyUrl = 'https://v0-new-project-dbxbq2jdjbp-2lcizzjdw-kcs-projects-5b85a9f8.vercel.app/api/proxy'; // 替換為你的 Vercel 項目 URL
+        if (!response.ok) {
+            throw new Error(`後端請求失敗: ${response.statusText}`);
+        }
 
-  try {
-    const response = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: 'user', content: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。" }]
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`API 調用失敗: ${response.statusText}`);
+        const data = await response.json();
+        return data.choices[0].message.content.trim();
+    } catch (error) {
+        console.error("調用 API 時出錯:", error);
+        throw new Error("API 調用失敗，請稍後再試");
     }
-
-    const data = await response.json();
-    let content = data.choices[0].message.content.trim();
-    return content;
-  } catch (error) {
-    console.error(error);
-    throw new Error("API 調用失敗");
-  }
 }
 
         
