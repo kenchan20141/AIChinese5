@@ -829,11 +829,6 @@
 
 
 
-        
-        // API 配置信息
-       
-        const MODEL = "deepseek-reasoner";
-
 
 const audio = document.getElementById('audio');
 const playPauseBtn = document.getElementById('play-pause');
@@ -1765,9 +1760,11 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-    
+
+const MODEL = "deepseek-reasoner"; // 保留模型名稱
+        
 async function callAPI(prompt) {
-  const proxyUrl = 'v0-new-project-dbxbq2jdjbp-8c0tr4dfa-kcs-projects-5b85a9f8.vercel.app'; // 替換為你的 Vercel 項目 URL
+  const proxyUrl = 'https://v0-new-project-dbxbq2jdjbp-2lcizzjdw-kcs-projects-5b85a9f8.vercel.app/'; // 替換為你的 Vercel 項目 URL
 
   try {
     const response = await fetch(proxyUrl, {
