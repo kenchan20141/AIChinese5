@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'DeepSeek-R1',
+        model: 'deepseek-reasoner',
         messages: [{ role: 'user', content: prompt }]
       })
     });
