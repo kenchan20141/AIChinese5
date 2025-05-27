@@ -15,6 +15,7 @@ module.exports = async (req, res) => {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 8192
     })
+    timeout: 240000 // 設置超時為 240 秒（4 分鐘）
   });
 
   const data = await response.json();
