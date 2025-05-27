@@ -13,9 +13,8 @@ module.exports = async (req, res) => {
     body: JSON.stringify({
       model: 'deepseek-reasoner',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 8192
+      max_tokens: 1000
     })
-    timeout: 240000 // 設置超時為 240 秒（4 分鐘）
   });
 
   const data = await response.json();
