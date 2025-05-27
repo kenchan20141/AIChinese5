@@ -1861,7 +1861,7 @@ async function submitArgumentOutline() {
     document.getElementById("argumentWritingResult").innerHTML = "陳SIR正在點評...";
 
             try {
-                const comment = await callSpecificAPI(prompt);
+                const comment = await callAPI(prompt);
                 const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
                 let commentHTML = "<h3>陳SIR點評：</h3><table>";
                 commentParts.forEach(part => {
@@ -1925,40 +1925,6 @@ async function submitArgumentOutline() {
             }
         }
 
-
-async function callSpecificAPI(prompt) {
-  const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
-  const MODEL = "DeepSeek-R1";
-  const API_KEY = "sk-buNeXlY8PafDWYpau2OPDA";
-
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 8192
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`特定 API 調用失敗: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content.trim();
-  } catch (error) {
-    console.error("特定 API 調用錯誤:", error);
-    throw new Error("特定 API 調用失敗");
-  }
-}
-
-
-        
         // 通用 API 調用函數
     async function callAPI(prompt) {
   try {
@@ -2175,7 +2141,7 @@ async function callSpecificAPI(prompt) {
             document.getElementById("commentResult").innerHTML = "陳SIR正在點評...";
 
             try {
-                const comment = await callSpecificAPI(prompt);
+                const comment = await callAPI(prompt);
                 if (writingType === "大綱") {
                     const sections = comment.split(/=== (.+?) ===/).filter(s => s.trim());
                     const commentIndex = sections.indexOf("點評及建議");
