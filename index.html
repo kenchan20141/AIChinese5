@@ -6,7 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>神思</title>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Android 圖示 -->
@@ -18,11 +19,6 @@
     <link rel="apple-touch-icon" sizes="152x152" href="https://i.ibb.co/VYSvrs7Z/image-27-5435354.png">
     <link rel="apple-touch-icon" sizes="120x120" href="https://i.ibb.co/VYSvrs7Z/image-27-5435354.png">
     
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-
-
     <style>
 
 
@@ -38,6 +34,7 @@
             text-align: center;
             color: #333;
         }
+
 
  .copyright-footer {
             position: fixed;
@@ -165,6 +162,57 @@
             min-width: 150px;
         }
 
+#expandToolsBtn {
+    background-color: #7fb3d5;
+}
+
+#expandToolsBtn:hover {
+    background-color: #aed6f1;
+}
+
+
+#toolsContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#toolsList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#toolsList button {
+    margin: 10px 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#closeToolsBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 #toggleOverviewBtn {
             background-color: #A9A9A9; /* 灰色背景 */
             color: white; /* 白色文字 */
@@ -243,6 +291,8 @@
             margin-top: 10px;
         }
 
+
+
 #music-player {
     position: fixed;
     bottom: 0px;
@@ -310,7 +360,7 @@
         cursor: pointer;
         margin-left: 10px;
     }
-   #show-player {
+    #show-player {
     position: fixed;
     bottom: 25px; /* 上移至 30px，可根據需要調整 */
     right: 10px;
@@ -391,7 +441,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 
 <style>
     #hitokoto-container {
@@ -478,9 +528,9 @@
     });
 </script>
 
-
-
     
+    
+
    <!-- 工具功能概覽按鈕 -->
 <div class="box">
     <button id="toggleOverviewBtn" onclick="toggleOverview()">顯示「功能概覽」</button>
@@ -494,7 +544,7 @@
 
     
     
-    <p>本工具旨在協助同學練習寫作卷和閱讀卷，並提供課外書籍討論。以下是主要功能：</p>
+    <p>本工具旨在協助同學練習寫作卷和閱讀卷，並提供課外書籍討論。以下為主要功能：</p>
     <table>
         <tr>
             <th>範疇</th>
@@ -525,8 +575,33 @@
             <td>提供電子原稿紙，並設有AI答惑功能。</td>
         </tr>
         <tr>
+            <td>AI擬題</td>
+            <td>由AI擬設閱讀卷及寫作卷的題目。</td>
+        </tr>
+          <tr>
+            <td>琢玉</td>
+            <td>用家可在PDF及圖片檔案右邊作旁批或備註。</td>
+        </tr>
+        <tr>
             <td>手寫文字轉換電腦文字</td>
             <td>i2OCR 是免費的線上光學字元辨識 (OCR) 軟體，可從圖像或PDF文件中提取文字。</td>
+        </tr>
+         <tr>
+            <td>帙雲</td>
+            <td>以Google drive建設的雲端平臺，可供用家繳交課業、檢閱繳交紀錄及瀏覽個人課業文件夾，設有自動生成繳交課業紀錄、歸類文件及追收功課的功能。</td>
+        </tr>
+ <tr>
+            <td>自學資源</td>
+            <td>提供大量自學中文的資源，包括教學影片、佳作及各卷筆記等。</td>
+        </tr>
+
+<tr>
+            <td>語弈錄</td>
+            <td>一款同時提供單機及線上對戰模式的遊戲，題目範圍涵蓋初中測考課文及高中十二篇範文。</td>
+        </tr>
+<tr>
+            <td>背書神器</td>
+            <td>設有倒計時功能，程式檢測到人聲會重置時計。</td>
         </tr>
         
     </table>
@@ -535,10 +610,31 @@
 <!-- 工具選擇 -->
 <div class="box">
     <h2>選擇工具：</h2>
+    <button id="expandToolsBtn">展開工具</button>
+    <div id="toolsContainer" style="display: none;">
+        <div id="toolsList">
     <button id="manuscriptPaperBtn">🖥智能原稿紙</button>
-       <button id="aiGeneratorBtn" style="background-color: #008080;">📝AI擬題</button>
+    <button id="aiGeneratorBtn" style="background-color: #008080;">📝AI擬題</button>
     <button id="zhuoyuBtn" style="background-color: #800000;">✏️琢玉</button>
     <button id="ocrBtn" style="background-color: #fd7e14;">✍手寫文字轉換電腦文字</button>
+<button id="zhiyunBtn" style="background-color: #5d6d7e;">☁️帙雲</button>
+<button id="selfLearningBtn" style="background-color: #20c997;">📖自學資源</button>
+<button id="yuyiluBtn" style="background-color: #a9cce3;">🎮語弈錄</button>
+
+<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px;">
+    <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
+    <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
+    <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
+    <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
+    <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
+    <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
+</div>
+
+<button id="beishuBtn" style="background-color: #c39bd3;">⏱背書神器</button>
+<button id="sansiBtn" style="background-color: #5e93cc;">🖥️神思(主網）</button>
+</div>
+       <button id="closeToolsBtn"><i class="fas fa-times"></i></button>
+    </div>
 </div>
     
    <!-- 範疇選擇 -->
@@ -823,11 +919,28 @@
     
     <script>
 
+document.getElementById("expandToolsBtn").addEventListener("click", function() {
+    document.getElementById("toolsContainer").style.display = "flex";
+});
 
+document.getElementById("closeToolsBtn").addEventListener("click", function() {
+    document.getElementById("toolsContainer").style.display = "none";
+});
+
+document.getElementById("toolsContainer").addEventListener("click", function(event) {
+    if (event.target === this) {
+        this.style.display = "none";
+    }
+});
 
         
-       const API_URL = "https://api.deepseek.com/v1/chat/completions"; // DEEPSEEK 官方 API 端點
-const MODEL = "deepseek-reasoner"; // DEEPSEEK 官方模型名稱
+        // API 配置信息
+        const API_KEYS = [
+            "sk-MoqwsgO8P9MEoCrftvdSYA"
+        ];
+        let currentApiKeyIndex = 0;
+        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
+        const MODEL = "DeepSeek-R1";
 
 
 const audio = document.getElementById('audio');
@@ -1028,7 +1141,7 @@ showPlayerBtn.addEventListener('click', function() {
         // 範疇定義
         const categories = {
             "片段描寫": {
-                commentNote: "必須用繁體字。點評時，必須就上述生成或輸入的題目、結構段重點、情節大要，點評大綱內容是否扣題。必須從以下兩個角度點評：其一，點評「結構段重點與題目是否有關、有多大邏輯關係」；其二，點評「情節大要是否能突顯出結構段重點、寫作內容的詳略剪裁是否恰當，即是否有效突顯結構段重點（前提是結構段重點扣題，如不扣題，情節大要及寫作內容就肯定不扣題），點評時要注意寫作內容、結構段重點兩者與題目有沒有在顯性的邏輯關係，寫作內容要求的不只是取材情節可以與結構段重點及題目構成邏輯關係，更要用合適的情節詳略剪裁和扣題小段去突顯與該部份的邏輯關係，使寫作內容明確呼應結構段重點及題目。」若離題，範例不必根據原文離題內容改寫，而改寫部份必須包含扣題小段（部份句子直接呼應結構段重點或題目）。點評分為三部分：### 點評、### 建議、### 改寫範例。只選取最重要的一至兩點評論，應先聚焦在評論寫作內容是否在扣連題目及結構段重點的方向以及其詳略剪裁，其次方為文句（包括示現敘事和密度）。若結構段重點或情節大要與題目關係薄弱，須在點評中指出並重點說明。點評內容要精簡、一語中的，僅將最關鍵、影響最大的一至兩項評語點出來，若扣題和詳略剪裁等都處理不得當，則不需要詳評文句。片段描寫需交替運用小物件、動作、對話和內心獨白，提高文句密度（詞匯深度高、物象豐富、實詞比例高），但必須注意：過�（例如連用小物件做主語的句子）則不宜，適時需要以人物作主語，交替去用，有時加入內心獨白會令文句顯得更自然，密度不宜過高，適時要加入虛詞放緩節奏，張弛有度。此外，要控制詳略節奏，詳寫與題目相關的部分，略寫次要內容。文句密度也是好文筆的標準，需納入考量。點評和建議不應使用列點形式，應以段落呈現。此外，假如整體表現真的不錯，沒有大問題，在點評時稱讚即可，不必吹毛求疵地批評，但在寫作內容的「扣題」邏輯上必須嚴謹把關。"
+                commentNote: "必須用繁體字。點評時，必須就上述生成或輸入的題目、結構段重點、情節大要，點評大綱內容是否扣題。必須從以下兩個角度點評：其一，點評「結構段重點與題目是否有關、有多大邏輯關係」；其二，點評「情節大要是否能突顯出結構段重點、寫作內容的詳略剪裁是否恰當，即是否有效突顯結構段重點（前提是結構段重點扣題，如不扣題，情節大要及寫作內容就肯定不扣題），點評時要注意寫作內容、結構段重點兩者與題目有沒有在顯性的邏輯關係，寫作內容要求的不只是取材情節可以與結構段重點及題目構成邏輯關係，更要用合適的情節詳略剪裁和扣題小段去突顯與該部份的邏輯關係，使寫作內容明確呼應結構段重點及題目。」若離題，範例不必根據原文離題內容改寫，而改寫部份必須包含扣題小段（部份句子直接呼應結構段重點或題目）。點評分為三部分：### 點評、### 建議、### 改寫範例。只選取最重要的一至兩點評論，應先聚焦在評論寫作內容是否在扣連題目及結構段重點的方向以及其詳略剪裁，其次方為文句（包括示現敘事和密度）。若結構段重點或情節大要與題目關係薄弱，須在點評中指出並重點說明。點評內容要精簡、一語中的，僅將最關鍵、影響最大的一至兩項評語點出來，若扣題和詳略剪裁等都處理不得當，則不需要詳評文句。片段描寫需交替運用小物件、動作、對話和內心獨白，提高文句密度（詞匯深度高、物象豐富、實詞比例高），但必須注意：過 （例如連用小物件做主語的句子）則不宜，適時需要以人物作主語，交替去用，有時加入內心獨白會令文句顯得更自然，密度不宜過高，適時要加入虛詞放緩節奏，張弛有度。此外，要控制詳略節奏，詳寫與題目相關的部分，略寫次要內容。文句密度也是好文筆的標準，需納入考量。點評和建議不應使用列點形式，應以段落呈現。此外，假如整體表現真的不錯，沒有大問題，在點評時稱讚即可，不必吹毛求疵地批評，但在寫作內容的「扣題」邏輯上必須嚴謹把關。"
             },
             "大綱": {
                 commentNote: "必須用繁體字。點評時，必須就上述生成的題目點評大綱內容是否扣題，假如大綱離題，範例便不必根據離題內容改寫。此外，點評應分為三個部份：點評、建議、改寫範例。在寫作大綱時，學生應展示他們組織思路和結構故事的能力。評分時，請注意大綱的邏輯性、條理性以及是否包含了故事的起承轉合或三線結構（即所謂「散敘」，有以下三點要注意：其一，三線的分類範疇相同；其二，三線或有層遞關係，或能從三個角度呈現同一個主題；其三，三線的情節發展不能過於相似；其四，所分之角度能突顯與主題相關的立意。「三線」例子如下：題目為「勇氣」，則可用「年少時的勇氣」為一線、「年青時的勇氣」為二線、「年老時的勇氣」為三線；又如以「重遊舊地所見有感」，則可用在故鄉的不同「地」所見作三線分類，例如老屋、後山等。必須確保每條線的「結構段重點」清晰點明三線的分類範疇、想突顯題目的甚麼要點、與題目如何扣連等，以及「合」能統攝總結全文立意）。要逐部分分析每個結構段與題目的關係有多大，並在點評中明確指出。此外，在「改寫後的大綱」,其「結構段重點」必須交代該部份與題目之間的邏輯關係，即怎樣做到扣題。此外，由於是應試文章，因此改寫後的大綱避免過份具理論哲學性及文學性，以至於脫離了現實和日常生活，亦圍繞人在經歷的情感和體悟設定，必須減少概念模糊的術語，例如「情感載體」及「時空的共創」，請用日常化用語描述。此外，「改寫後的大綱」不宜只圍繞一件事敘寫，這樣會容易寫得太抽象，應適時加插人物與人物之間的回憶或其他經歷，令文章看起來更具體實在。此外，大綱不是全篇文章，最重要的是在點評時分析其結構段及情節大要的思路是否扣緊題目，方向是否合理、正確。假如整體表現真的不錯，沒有大問題，在點評時稱讚即可，不必吹毛求疵地批評。"
@@ -1045,7 +1158,7 @@ showPlayerBtn.addEventListener('click', function() {
                 seriousChatNote: "必須用繁體字，用語貼近日常生活，回應不要理論化，不要用網絡用語，也不要用EMOJI。"
             },
             "整合拓展": {
-                topicPrompt: "請生成一道適合中學生練習整合拓展的題目，題目應包含主題句（主題句絕對不能是問句）和抄錄資料（抄錄資料必須不包含任何數據，不得包含引號或人物對話，而且不得超過30字），並符合以下文類和取材範圍。文類：書信、評論、建議書、演講辭、報告、專題文章。取材範圍：例如環保、社會、文化、學習等活動，但出題請多元化一點，亦不要每次都是與好處相關的，否則用家多生成幾次，便會遇到類似的題目。要求：1. 主題句簡潔，20字以內。2. 抄錄資料為一段文字，不超過100字。3. 輸出格式為：主題句：...\n抄錄資料：...\n4. 內容簡潔明了，避免冗長。5. 題目多樣化，避免重複。",
+                topicPrompt: "請生成一道適合中學生練習整合拓展的題目，題目應包含主題句（主題句絕對不能是問句）和抄錄資料（抄錄資料必須不包含任何數據，主要包括活動內容及細節，格式如「社區漫步由導賞員帶領參加者遊覽社區，共同誦讀與社區相關的文學作品，感受社區魅力。」不得包含引號或人物對話，而且不得超過30字），並符合以下文類和取材範圍。文類：書信、評論、建議書、演講辭、報告、專題文章。取材範圍：例如「請隨機選擇一個主題，且該主題必須與以下列出的所有主題（運動、生涯規劃、責任、教育、文化、社會、歷史、地理、藝術、體育、法律、健康、心理、家庭、友誼、就業、經濟、生態、能源、資源、安全、網路、媒體、資訊、道德、誠信、公平、自由、權利、義務、隱私、禮儀、榜樣、創新、創業、消費、儲蓄、民族、語言、宗教、傳統、現代、城鄉、社區、公益、慈善、災害、醫療、疾病、飲食、旅遊、建築、娛樂、音樂、電影、文學、人口、性別、年齡、職業、學業、考試、升學、校園、師生、同學、課外、社團、競賽、志願、壓力、自律、時間、興趣、習慣、遊戲、睡眠、氣候、汙染、閱讀」，但出題請多元化一點，亦不要每次都是與好處相關的，否則用家多生成幾次，便會遇到類似的題目。要求：1. 主題句簡潔，20字以內。2. 抄錄資料為一段文字，不超過100字。3. 輸出格式為：主題句：...\n抄錄資料：...\n4. 內容簡潔明了，避免冗長。5. 題目多樣化，避免重複。",
                 commentNote: "必須用繁體字。點評時，需評估「整合拓展」是否能闡釋「抄錄資料」與「主題句」的邏輯關係。需判斷：1.「拓展」方向是否正確（即是否能論證主題句）；2.推論是否嚴謹；3.是否具體不空泛。「點評」時，若方向不正確，需指出並建議如何修訂，需指導緊扣主題句，亦須分析主題句和題目任務的關係是否緊密，例如題目任務為提出建議，但主題句焦點卻是描述問題，則屬於不妥當。「改寫」時亦不能順著「整合拓展」錯誤思路改善，需扣緊主題句，假如主題句本身就未能緊扣題目的任務，則不應圍繞本身錯誤的主題句改寫，要在「改寫」部份針對一個正確的主題句作改寫。此外，改寫部份不宜分為太多角度論述，這樣會令闡釋較零散，須就最多2個角度深入分析、闡釋。改寫部份不得超過180字，且不得虛構資料，包括數據及調查，不要自擬「根據調查」之類，只可根據抄錄資料補充合理細節，「改寫」部份不要重複用家輸入的「抄錄資料」，會白白浪費空間。此外，「改寫」亦要嚴謹對應主題句及抄錄資料關係，例如主題句描述活動問題，則在「改寫」的部份不宜聚焦在改善措施，必須注意詳略、輕重，才能突顯主題句。此外，「改寫」亦要留意題目任務，不要在「改寫」時會順著用家詳略不當或錯誤的「整合拓展」思路改寫。此外，「改寫」部份不要太數據化，例如做計算及分析數據等，這部份最重要是交代事理的邏輯關係。點評分為三部分：### 點評、### 建議、### 改寫。點評和建議以段落形式呈現，不使用列點。拓展方法：以抄錄資料為起點，主題句為終點，運用橫向拓展（逐步推論，回答「為何」或「如何」）或直向拓展（補充具體例子或細節）。改寫部份必須注意要運用好橫向拓展及直向拓展的技巧。常見問題包括：推論方向錯誤、未推論到底、推論點重複、推論跳脫、有量無質，需針對性指出，改寫時亦要避免犯下這些問題。",
                 guideNote: "必須用繁體字。僅生成三道問題以引導用家思考如何根據表格資料做好整合拓展，問題應圍繞主題句和抄錄資料的邏輯關係，引導用家思考如何闡釋和拓展。請不要運用歐化句及詞匯，例如「關聯性」、「實效性」，這些字詞意義不明確，但用生活化一點、具體一點的字詞生成問題。輸出分為一個部分：### 指引問題。指引問題以問題形式呈現，每個問題占一行。"
             },
@@ -1068,7 +1181,7 @@ document.getElementById("manuscriptPaperBtn").addEventListener("click", function
     window.open("https://kenchan20141.github.io/manuscriptpaper/", "_blank");
 });
 
-  document.getElementById("aiGeneratorBtn").addEventListener("click", function() {
+        document.getElementById("aiGeneratorBtn").addEventListener("click", function() {
     window.open("https://kenchan20141.github.io/generator/", "_blank");
 });
 
@@ -1076,16 +1189,49 @@ document.getElementById("manuscriptPaperBtn").addEventListener("click", function
     window.open("https://kenchan20141.github.io/WCT/", "_blank");
 });
 
-
-
-        
         // 為「手寫文字轉換電腦文字」按鈕添加點擊事件處理函數
 document.getElementById("ocrBtn").addEventListener("click", function() {
     if (confirm("請小心保護個人私隱，上傳檔案前，必須先確認圖片或PDF頁面沒有透露任何個人資料，例如姓名和學校名稱等。")) {
         window.open("https://www.i2ocr.com/free-online-image-ocr", "_blank");
     }
 });
-        
+
+
+document.getElementById("zhiyunBtn").addEventListener("click", function() {
+    window.open("https://script.google.com/a/macros/ccckyc.edu.hk/s/AKfycby1T18HxuFICIaR0LYWRuaqlpmglkL191bVl39MH69zj5CQ-uhozF17edtJ_T54NhZ5/exec", "_blank");
+});
+
+document.getElementById("selfLearningBtn").addEventListener("click", function() {
+    window.open("https://621d05f47d591.site123.me/", "_blank");
+});
+
+document.getElementById("beishuBtn").addEventListener("click", function() {
+    window.open("https://kenchan20141.github.io/timer/", "_blank");
+});
+
+
+document.getElementById("sansiBtn").addEventListener("click", function() {
+    window.open("https://sansi.vercel.app/", "_blank");
+});
+
+
+document.getElementById("yuyiluBtn").addEventListener("click", function(event) {
+    const menu = document.getElementById("yuyiluMenu");
+    const btnRect = this.getBoundingClientRect(); // 獲取按鈕位置
+    menu.style.top = btnRect.bottom + "px"; // 選單頂部對齊按鈕底部
+    menu.style.left = btnRect.left + "px"; // 選單左邊對齊按鈕左邊
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+});
+
+
+// 點擊其他地方時隱藏選單
+document.addEventListener("click", function(event) {
+    const menu = document.getElementById("yuyiluMenu");
+    if (!menu.contains(event.target) && event.target !== document.getElementById("yuyiluBtn")) {
+        menu.style.display = "none";
+    }
+});
+
         
         document.getElementById("booksBtn").addEventListener("click", function() {
             showContainer("booksContainer");
@@ -1763,71 +1909,59 @@ async function submitArgumentOutline() {
             }
         }
 
-
-
-async function getApiKey() {
-    const dbRef = firebase.database().ref('/api_keys/deepseek_api_key');
-    const snapshot = await dbRef.once('value');
-    return snapshot.val();
-}
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCNnFDrHrUFCPFNPcAYB2eLV_lMlBI9zB8",
-  authDomain: "aiwritingtool-243aa.firebaseapp.com",
-  databaseURL: "https://aiwritingtool-243aa-default-rtdb.firebaseio.com",
-  projectId: "aiwritingtool-243aa",
-  storageBucket: "aiwritingtool-243aa.firebasestorage.app",
-  messagingSenderId: "532808111828",
-  appId: "1:532808111828:web:74cd1001e232e196598d41"
-};
-
-
-
-
+        // 通用 API 調用函數
      async function callAPI(prompt) {
-    const apiKey = await getApiKey();
-    if (!apiKey) {
-        throw new Error("無法從數據庫獲取 API 密鑰");
-    }
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: MODEL,
-                messages: [{ 
-                    role: "user", 
-                    content: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。" 
-                }]
-            })
-        });
+    let attempts = 0;
+    const maxAttempts = API_KEYS.length;
+    while (attempts < maxAttempts) {
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [{ 
+                        role: "user", 
+                        content: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。" 
+                    }]
+                })
+            });
 
-        if (!response.ok) {
-            throw new Error(`API 調用失敗: ${response.statusText}`);
+            if (response.status === 429) {
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                attempts++;
+                continue;
+            }
+
+            if (!response.ok) {
+                throw new Error(`API 調用失敗: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            let content = data.choices[0].message.content.trim();
+
+            // 強化過濾邏輯，移除所有可能的 <think> 標籤變體
+            content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
+
+            // 驗證過濾後內容是否有效
+            if (!content) {
+                throw new Error("API 回應無效或過濾後無內容");
+            }
+
+            return content;
+        } catch (error) {
+            console.error(error);
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+            attempts++;
+            if (attempts >= maxAttempts) {
+                throw new Error("所有 API 密鑰均無法使用");
+            }
         }
-
-        const data = await response.json();
-        let content = data.choices[0].message.content.trim();
-
-        // 過濾任何可能的標籤
-        content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
-
-        if (!content) {
-            throw new Error("API 回應無效或過濾後無內容");
-        }
-
-        return content;
-    } catch (error) {
-        console.error(error);
-        throw error;
     }
 }
-
-
         // 生成寫作題目
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
@@ -2495,6 +2629,7 @@ const firebaseConfig = {
 <footer class="copyright-footer">
         <p>Copyright © 2025 陳冠健. All rights reserved.</p>
     </footer>
+
 
     
 </body>
