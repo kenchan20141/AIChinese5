@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -1937,7 +1938,7 @@ async function submitArgumentOutline() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ prompt, max_tokens: 8192 })
+      body: JSON.stringify({ prompt, max_tokens: 1000 })
     });
 
     if (!response.ok) {
