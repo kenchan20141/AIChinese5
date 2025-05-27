@@ -1924,8 +1924,11 @@ async function submitArgumentOutline() {
             }
         }
 
-        // 通用 API 調用函數
-    async function callAPI(prompt) {
+    // 假設API的請求大小限制為4096字元
+const MAX_LENGTH = 8192;
+
+// 通用API調用函數
+async function callAPI(prompt) {
   try {
     const response = await fetch('/api/deepseek', {
       method: 'POST',
@@ -1936,17 +1939,40 @@ async function submitArgumentOutline() {
     });
 
     if (!response.ok) {
-      throw new Error(`API 調用失敗: ${response.statusText}`);
+      throw new Error(`API調用失敗: ${response.statusText}`);
     }
 
     const data = await response.json();
     return data.choices[0].message.content.trim();
   } catch (error) {
-    console.error("API 調用錯誤:", error);
-    throw new Error("API 調用失敗");
+    console.error("API調用錯誤:", error);
+    throw new Error("API調用失敗");
   }
 }
 
+// 提交內容函數，加入長度限制和分割邏輯
+async function submitContent(content) {
+  if (content.length > MAX_LENGTH) {
+    const parts = [];
+    for (let i = 0; i < content.length; i += MAX_LENGTH) {
+      parts.push(content.slice(i, i + MAX_LENGTH));
+    }
+    const results = await Promise.all(parts.map(part => callAPI(part)));
+    return results.join("");
+  }
+  return callAPI(content);
+}
+
+// 示例使用
+async function exampleUsage() {
+  const longContent = "您的長輸入內容..."; // 替換為實際的長輸入內容
+  try {
+    const result = await submitContent(longContent);
+    console.log(result);
+  } catch (error) {
+    console.error("提交內容時出錯:", error);
+  }
+}
         
         // 生成寫作題目
         async function generateTopic() {
