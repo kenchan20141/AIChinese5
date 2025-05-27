@@ -1,4 +1,4 @@
-
+現在點評較長的輸入內容經常生成失敗，較短的沒有問題，不知道是否與我將API藏在環境變數相關，請教我如何修訂，不需要輸出整個工具的函數代碼。
 
 <!DOCTYPE html>
 <html lang="zh">
@@ -1925,29 +1925,27 @@ async function submitArgumentOutline() {
             }
         }
 
+        // 通用 API 調用函數
+    async function callAPI(prompt) {
+  try {
+    const response = await fetch('/api/deepseek', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt, max_tokens: 8192 })
+    });
 
-function splitPrompt(prompt, maxLength) {
-    const segments = [];
-    for (let i = 0; i < prompt.length; i += maxLength) {
-        segments.push(prompt.slice(i, i + maxLength));
+    if (!response.ok) {
+      throw new Error(`API 調用失敗: ${response.statusText}`);
     }
-    return segments;
-}
-        
-async function callAPI(prompt) {
-    const maxLength = 4096; // 根據API限制調整
-    const segments = splitPrompt(prompt, maxLength);
-    const results = [];
-    for (const segment of segments) {
-        const response = await fetch('/api/deepseek', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: segment, max_tokens: 8192 })
-        });
-        const data = await response.json();
-        results.push(data.choices[0].message.content.trim());
-    }
-    return results.join(''); // 合併結果
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error("API 調用錯誤:", error);
+    throw new Error("API 調用失敗");
+  }
 }
 
         
@@ -2616,7 +2614,7 @@ async function callAPI(prompt) {
     </script>
 
 <footer class="copyright-footer">
-        <p>Copyright © 2025 陳冠健. All rights reserved.</p>
+        <p>Copyright © 2025 陳. All rights reserved.</p>
     </footer>
 
 
