@@ -162,18 +162,6 @@
             min-width: 150px;
         }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.tool-btn {
-    animation: fadeIn 0.2s ease-in-out forwards;
-    opacity: 0;
-}
-
-
-
 #expandToolsBtn {
     background-color: #7fb3d5;
 }
@@ -199,11 +187,10 @@
 #toolsList {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
 }
 
 #toolsList button {
-opacity: 0;
     margin: 10px 0;
     padding: 10px 20px;
     font-size: 16px;
@@ -634,17 +621,17 @@ opacity: 0;
 <button id="selfLearningBtn" style="background-color: #20c997;">📖自學資源</button>
 <button id="yuyiluBtn" style="background-color: #a9cce3;">🎮語弈錄</button>
 
-<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px; z-index: 1001;">
-        <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
-        <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
-        <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
-        <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
-        <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
-        <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
-    </div>
+<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px;">
+    <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
+    <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
+    <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
+    <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
+    <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
+    <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
+</div>
 
 <button id="beishuBtn" style="background-color: #c39bd3;">⏱背書神器</button>
-<button id="sansiBtn" style="background-color: #5e93cc;">🖥️神思(備用）</button>
+<button id="sansiBtn" style="background-color: #5e93cc;">🖥️神思(主網）</button>
 </div>
        <button id="closeToolsBtn"><i class="fas fa-times"></i></button>
     </div>
@@ -932,31 +919,28 @@ opacity: 0;
     
     <script>
 
-// 展開工具按鈕的點擊事件
 document.getElementById("expandToolsBtn").addEventListener("click", function() {
-    const toolsContainer = document.getElementById("toolsContainer");
-    toolsContainer.style.display = "flex";
-    const buttons = document.querySelectorAll("#toolsList button");
-    buttons.forEach((btn, index) => {
-        btn.classList.add("tool-btn");
-        btn.style.animation = ""; // 恢復動畫設置
-        btn.style.animationDelay = `${index * 0.1}s`;
-        setTimeout(() => {
-            btn.style.opacity = "1";
-        }, index * 200);
-    });
+    document.getElementById("toolsContainer").style.display = "flex";
 });
 
-// 關閉工具按鈕的點擊事件
 document.getElementById("closeToolsBtn").addEventListener("click", function() {
     document.getElementById("toolsContainer").style.display = "none";
-    const buttons = document.querySelectorAll("#toolsList button");
-    buttons.forEach(btn => {
-        btn.style.opacity = "0";
-        btn.style.animation = "none"; // 重置動畫狀態
-    });
 });
 
+document.getElementById("toolsContainer").addEventListener("click", function(event) {
+    if (event.target === this) {
+        this.style.display = "none";
+    }
+});
+
+        
+        // API 配置信息
+        const API_KEYS = [
+            "sk-MoqwsgO8P9MEoCrftvdSYA"
+        ];
+        let currentApiKeyIndex = 0;
+        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
+        const MODEL = "DeepSeek-R1";
 
 
 const audio = document.getElementById('audio');
@@ -1227,7 +1211,7 @@ document.getElementById("beishuBtn").addEventListener("click", function() {
 
 
 document.getElementById("sansiBtn").addEventListener("click", function() {
-    window.open("https://kenchan20141.github.io/AIChinese/", "_blank");
+    window.open("https://sansi.vercel.app/", "_blank");
 });
 
 
@@ -1926,42 +1910,58 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
-   async function callAPI(prompt) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 300000); // 設置 60 秒超時
+     async function callAPI(prompt) {
+    let attempts = 0;
+    const maxAttempts = API_KEYS.length;
+    while (attempts < maxAttempts) {
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEYS[currentApiKeyIndex]}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [{ 
+                        role: "user", 
+                        content: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。" 
+                    }]
+                })
+            });
 
-    try {
-        const response = await fetch('/api/deepseek', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt, max_tokens: 8192 }),
-            signal: controller.signal // 使用 AbortController 控制超時
-        });
-
-        clearTimeout(timeoutId); // 成功收到回應後清除超時
-
-        if (!response.ok) {
-            if (response.status === 504) {
-                throw new Error('API 請求超時，請稍後再試');
+            if (response.status === 429) {
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+                attempts++;
+                continue;
             }
-            throw new Error(`API 調用失敗: ${response.statusText}`);
-        }
 
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-    } catch (error) {
-        clearTimeout(timeoutId); // 確保超時定時器被清除
-        if (error.name === 'AbortError') {
-            throw new Error('API 請求超時，請檢查網絡連接或稍後再試');
+            if (!response.ok) {
+                throw new Error(`API 調用失敗: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            let content = data.choices[0].message.content.trim();
+
+            // 強化過濾邏輯，移除所有可能的 <think> 標籤變體
+            content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
+
+            // 驗證過濾後內容是否有效
+            if (!content) {
+                throw new Error("API 回應無效或過濾後無內容");
+            }
+
+            return content;
+        } catch (error) {
+            console.error(error);
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+            attempts++;
+            if (attempts >= maxAttempts) {
+                throw new Error("所有 API 密鑰均無法使用");
+            }
         }
-        console.error("API 調用錯誤:", error);
-        throw new Error("API 調用失敗");
     }
 }
-
-        
         // 生成寫作題目
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
@@ -2061,198 +2061,196 @@ async function submitArgumentOutline() {
 
         // 提交寫作內容
         async function submitWriting() {
-    const writingType = document.getElementById("writingType").value;
-    const topic = localStorage.getItem("currentTopic");
-    if (!topic) {
-        alert("請先設定題目");
-        return;
-    }
-
-    let content = "";
-    let structure = "";
-    if (writingType === "大綱") {
-        structure = document.getElementById("structure").value;
-        const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
-        content = parts.map((part, index) => {
-            const focusId = structure + "Focus" + (index + 1);
-            const plotId = structure + "Plot" + (index + 1);
-            const focus = document.getElementById(focusId)?.value.trim() || "";
-            const plot = document.getElementById(plotId)?.value.trim() || "";
-            if (!focus || !plot) {
-                alert("請填寫所有大綱表格");
-                throw new Error("Incomplete outline");
-            }
-            return { part, focus, plot };
-        });
-    } else if (writingType === "敘事物象") {
-        content = document.getElementById("narrativeElements").value.trim();
-    } else {
-        content = document.getElementById("writingContent").value.trim();
-        if (!content) {
-            alert("請先輸入寫作內容");
-            return;
-        }
-    }
-
-    let toneNote = "";
-    if (writingType !== "敘事物象") {
-        const tone = document.getElementById("writingTone").value;
-        if (tone === "chen") {
-            toneNote = "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語，用語要日常生活化一點。如果用戶表現良好，請大加讚賞；如果用戶表現不好，可以善意地揶揄一下，但要注意尺度，不能傷害用戶的自尊心。揶揄時，可運用生活化的比喻。";
-        } else {
-            toneNote = "請用嚴肅正經的語氣進行點評和建議。";
-        }
-    }
-
-    const note = categories[writingType].commentNote;
-
-    let prompt = "";
-    if (writingType === "大綱") {
-        prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
-        1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
-        2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「結構段重點」和「情節大要」。使用「[part]」標記每個結構段的開始，然後在下一行「結構段重點：」後跟內容，再下一行「情節大要：」後跟內容。結構段數量必須與用戶選擇的大綱結構一致（起承轉合為4段，三線為5段：起、一線、二線、三線、合）。
-        3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
-        4. 在「=== 改寫後的大綱 ===」中，請使用正式的語氣，不使用EMOJI或網絡用語。
-        請確保內容簡潔明了。
-        題目：${topic}
-        大綱結構：${structure === "fourPart" ? "起承轉合" : "三線（起、一線、二線、三線、合）"}
-        用戶輸入的大綱：
-        | 部份 | 結構段重點 | 情節大要 |
-        |------|------------|----------|
-        ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\n")}
-        教學筆記：${note}
-        點評及建議語氣：${toneNote}`;
-    } else if (writingType === "敘事物象") {
-        prompt = `請根據以下題目和取材/故事背景生成五十個不重複且相關的物象。要求：
-        1. 物象必須與題目和取材/故事背景緊密相關。
-        2. 物象應多樣化且生動，能夠增強故事的真實感和情感表達。
-        3. 請以列表形式呈現，每個物象占一行。
-        4. 請確保物象不重複且排版整齊。
-        題目：${topic}
-        取材/故事背景：${content || "無具體背景，根據題目生成"}
-        教學筆記：${note}`;
-    } else {
-        const focus = localStorage.getItem("currentFocus");
-        const plot = localStorage.getItem("currentPlot");
-        prompt = `請根據以下內容進行點評，要求：
-        1. 簡明扼要
-        2. 參考教學筆記
-        3. 評論寫作內容與題目、結構段重點和情節大要的關係
-        4. 輸出分為三個部分：### 點評、### 建議、### 改寫範例
-        5. 點評時，聚焦詳略剪裁和文句（包括示現敘事和密度），選取最重要的一至兩點
-        6. 若結構段重點或情節大要與題目關係薄弱，需在點評中指出並重點說明
-        7. 點評和建議不應使用列點形式，應以段落呈現
-        8. 在「### 改寫範例」中，請使用正式的語氣，不使用EMOJI或網絡用語。
-        題目：${topic}
-        結構段重點：${focus}
-        情節大要：${plot}
-        寫作內容：${content}
-        教學筆記：${note}
-        點評及建議語氣：${toneNote}`;
-    }
-
-    document.getElementById("commentResult").innerHTML = "陳SIR正在點評...";
-
-    try {
-        const comment = await callAPI(prompt);
-        if (writingType === "大綱") {
-            const sections = comment.split(/=== (.+?) ===/).filter(s => s.trim());
-            const commentIndex = sections.indexOf("點評及建議");
-            const rewriteIndex = sections.indexOf("改寫後的大綱");
-            const explanationIndex = sections.indexOf("改寫說明");
-
-            const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
-            const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
-            const explanationPart = explanationIndex !== -1 ? sections[explanationIndex + 1] : "";
-
-            const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
-
-            function parseCommentPart(commentPart) {
-                const comments = {};
-                const regex = /\[(.+?)\]\s*點評：\s*(.+?)(?=\s*建議：|\s*\[|$)/gs;
-                const suggestionRegex = /\[(.+?)\]\s*點評：.+?\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
-                let match;
-
-                while ((match = regex.exec(commentPart)) !== null) {
-                    const part = match[1];
-                    comments[part] = comments[part] || {};
-                    comments[part].comment = match[2].trim();
-                }
-                while ((match = suggestionRegex.exec(commentPart)) !== null) {
-                    const part = match[1];
-                    comments[part] = comments[part] || {};
-                    comments[part].suggestion = match[2].trim();
-                }
-                return comments;
+            const writingType = document.getElementById("writingType").value;
+            const topic = localStorage.getItem("currentTopic");
+            if (!topic) {
+                alert("請先設定題目");
+                return;
             }
 
-            function parseRewritePart(rewritePart) {
-                const rewrites = {};
-                const regex = /\[(.+?)\]\s*結構段重點：\s*(.+?)(?=\s*情節大要：|\s*\[|$)/gs;
-                const plotRegex = /\[(.+?)\]\s*結構段重點：.+?\s*情節大要：\s*(.+?)(?=\s*\[|$)/gs;
-                let match;
-
-                while ((match = regex.exec(rewritePart)) !== null) {
-                    const part = match[1];
-                    rewrites[part] = rewrites[part] || {};
-                    rewrites[part].focus = match[2].trim();
+            let content = "";
+            let structure = "";
+            if (writingType === "大綱") {
+                structure = document.getElementById("structure").value;
+                const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+                content = parts.map((part, index) => {
+                    const focusId = structure + "Focus" + (index + 1);
+                    const plotId = structure + "Plot" + (index + 1);
+                    const focus = document.getElementById(focusId)?.value.trim() || "";
+                    const plot = document.getElementById(plotId)?.value.trim() || "";
+                    if (!focus || !plot) {
+                        alert("請填寫所有大綱表格");
+                        throw new Error("Incomplete outline");
+                    }
+                    return { part, focus, plot };
+                });
+            } else if (writingType === "敘事物象") {
+                content = document.getElementById("narrativeElements").value.trim();
+            } else {
+                content = document.getElementById("writingContent").value.trim();
+                if (!content) {
+                    alert("請先輸入寫作內容");
+                    return;
                 }
-                while ((match = plotRegex.exec(rewritePart)) !== null) {
-                    const part = match[1];
-                    rewrites[part] = rewrites[part] || {};
-                    rewrites[part].plot = match[2].trim();
-                }
-                return rewrites;
             }
 
-            const comments = parseCommentPart(commentPart);
-            const rewrites = parseRewritePart(rewritePart);
+            let toneNote = "";
+            if (writingType !== "敘事物象") {
+                const tone = document.getElementById("writingTone").value;
+                if (tone === "chen") {
+                    toneNote = "請用輕鬆隨意的語氣進行點評和建議，多用EMOJI，偶爾使用網絡用語，用語要日常生活化一點。如果用戶表現良好，請大加讚賞；如果用戶表現不好，可以善意地揶揄一下，但要注意尺度，不能傷害用戶的自尊心。揶揄時，可運用生活化的比喻。";
+                } else {
+                    toneNote = "請用嚴肅正經的語氣進行點評和建議。";
+                }
+            }
 
-            let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
-            content.forEach(item => {
-                const comment = comments[item.part]?.comment || "無";
-                const suggestion = comments[item.part]?.suggestion || "無";
-                commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
-            });
-            commentTableHTML += "</table></div>";
+            const note = categories[writingType].commentNote;
 
-            let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
-            parts.forEach(part => {
-                const rewrite = rewrites[part] || { focus: "無", plot: "無" };
-                rewriteTableHTML += `<tr><td>${part}</td><td>${rewrite.focus || "無"}</td><td>${rewrite.plot || "無"}</td></tr>`;
-            });
-            rewriteTableHTML += "</table></div>";
+            let prompt = "";
+            if (writingType === "大綱") {
+                prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
+                1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
+                2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「結構段重點」和「情節大要」。使用「[part]」標記每個結構段的開始，然後在下一行「結構段重點：」後跟內容，再下一行「情節大要：」後跟內容。結構段數量必須與用戶選擇的大綱結構一致（起承轉合為4段，三線為5段：起、一線、二線、三線、合）。
+                3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
+                4. 在「=== 改寫後的大綱 ===」中，請使用正式的語氣，不使用EMOJI或網絡用語。
+                請確保內容簡潔明了。
+                題目：${topic}
+                大綱結構：${structure === "fourPart" ? "起承轉合" : "三線（起、一線、二線、三線、合）"}
+                用戶輸入的大綱：
+                | 部份 | 結構段重點 | 情節大要 |
+                |------|------------|----------|
+                ${content.map(item => `| ${item.part} | ${item.focus} | ${item.plot} |`).join("\n")}
+                教學筆記：${note}
+                點評及建議語氣：${toneNote}`;
+            } else if (writingType === "敘事物象") {
+                prompt = `請根據以下題目和取材/故事背景生成五十個不重複且相關的物象。要求：
+                1. 物象必須與題目和取材/故事背景緊密相關。
+                2. 物象應多樣化且生動，能夠增強故事的真實感和情感表達。
+                3. 請以列表形式呈現，每個物象占一行。
+                4. 請確保物象不重複且排版整齊。
+                題目：${topic}
+                取材/故事背景：${content || "無具體背景，根據題目生成"}
+                教學筆記：${note}`;
+            } else {
+                const focus = localStorage.getItem("currentFocus");
+                const plot = localStorage.getItem("currentPlot");
+                prompt = `請根據以下內容進行點評，要求：
+                1. 簡明扼要
+                2. 參考教學筆記
+                3. 評論寫作內容與題目、結構段重點和情節大要的關係
+                4. 輸出分為三個部分：### 點評、### 建議、### 改寫範例
+                5. 點評時，聚焦詳略剪裁和文句（包括示現敘事和密度），選取最重要的一至兩點
+                6. 若結構段重點或情節大要與題目關係薄弱，需在點評中指出並重點說明
+                7. 點評和建議不應使用列點形式，應以段落呈現
+                8. 在「### 改寫範例」中，請使用正式的語氣，不使用EMOJI或網絡用語。
+                題目：${topic}
+                結構段重點：${focus}
+                情節大要：${plot}
+                寫作內容：${content}
+                教學筆記：${note}
+                點評及建議語氣：${toneNote}`;
+            }
 
-            const explanationHTML = `<h3>改寫說明：</h3><pre>${explanationPart.trim() || "無說明"}</pre>`;
-            document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML + explanationHTML;
-        } else if (writingType === "敘事物象") {
-            const elements = comment.split("\n").map(item => item.trim()).filter(item => item);
-            let elementsHTML = "<h3>生成的物象（50項）：</h3><ul>";
-            elements.forEach(element => elementsHTML += `<li>${element}</li>`);
-            elementsHTML += "</ul>";
-            document.getElementById("commentResult").innerHTML = elementsHTML;
-        } else {
-            const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
-            let commentHTML = "<h3>陳SIR點評：</h3><table>";
-            commentParts.forEach(part => {
-                const [title, ...content] = part.split("\n").filter(line => line.trim());
-                commentHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
-            });
-            commentHTML += "</table>";
-            document.getElementById("commentResult").innerHTML = commentHTML;
+            document.getElementById("commentResult").innerHTML = "陳SIR正在點評...";
+
+            try {
+                const comment = await callAPI(prompt);
+                if (writingType === "大綱") {
+                    const sections = comment.split(/=== (.+?) ===/).filter(s => s.trim());
+                    const commentIndex = sections.indexOf("點評及建議");
+                    const rewriteIndex = sections.indexOf("改寫後的大綱");
+                    const explanationIndex = sections.indexOf("改寫說明");
+
+                    const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
+                    const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
+                    const explanationPart = explanationIndex !== -1 ? sections[explanationIndex + 1] : "";
+
+                    const parts = structure === "fourPart" ? ["起", "承", "轉", "合"] : ["起", "一線", "二線", "三線", "合"];
+
+                    function parseCommentPart(commentPart) {
+                        const comments = {};
+                        const regex = /\[(.+?)\]\s*點評：\s*(.+?)(?=\s*建議：|\s*\[|$)/gs;
+                        const suggestionRegex = /\[(.+?)\]\s*點評：.+?\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
+                        let match;
+
+                        while ((match = regex.exec(commentPart)) !== null) {
+                            const part = match[1];
+                            comments[part] = comments[part] || {};
+                            comments[part].comment = match[2].trim();
+                        }
+                        while ((match = suggestionRegex.exec(commentPart)) !== null) {
+                            const part = match[1];
+                            comments[part] = comments[part] || {};
+                            comments[part].suggestion = match[2].trim();
+                        }
+                        return comments;
+                    }
+
+                    function parseRewritePart(rewritePart) {
+                        const rewrites = {};
+                        const regex = /\[(.+?)\]\s*結構段重點：\s*(.+?)(?=\s*情節大要：|\s*\[|$)/gs;
+                        const plotRegex = /\[(.+?)\]\s*結構段重點：.+?\s*情節大要：\s*(.+?)(?=\s*\[|$)/gs;
+                        let match;
+
+                        while ((match = regex.exec(rewritePart)) !== null) {
+                            const part = match[1];
+                            rewrites[part] = rewrites[part] || {};
+                            rewrites[part].focus = match[2].trim();
+                        }
+                        while ((match = plotRegex.exec(rewritePart)) !== null) {
+                            const part = match[1];
+                            rewrites[part] = rewrites[part] || {};
+                            rewrites[part].plot = match[2].trim();
+                        }
+                        return rewrites;
+                    }
+
+                    const comments = parseCommentPart(commentPart);
+                    const rewrites = parseRewritePart(rewritePart);
+
+                    let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
+                    content.forEach(item => {
+                        const comment = comments[item.part]?.comment || "無";
+                        const suggestion = comments[item.part]?.suggestion || "無";
+                        commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
+                    });
+                    commentTableHTML += "</table></div>";
+
+                    let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
+                    parts.forEach(part => {
+                        const rewrite = rewrites[part] || { focus: "無", plot: "無" };
+                        rewriteTableHTML += `<tr><td>${part}</td><td>${rewrite.focus || "無"}</td><td>${rewrite.plot || "無"}</td></tr>`;
+                    });
+                    rewriteTableHTML += "</table></div>";
+
+                    const explanationHTML = `<h3>改寫說明：</h3><pre>${explanationPart.trim() || "無說明"}</pre>`;
+                    document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML + explanationHTML;
+                } else if (writingType === "敘事物象") {
+                    const elements = comment.split("\n").map(item => item.trim()).filter(item => item);
+                    let elementsHTML = "<h3>生成的物象（50項）：</h3><ul>";
+                    elements.forEach(element => elementsHTML += `<li>${element}</li>`);
+                    elementsHTML += "</ul>";
+                    document.getElementById("commentResult").innerHTML = elementsHTML;
+                } else {
+                    const commentParts = comment.split("###").map(part => part.trim()).filter(part => part);
+                    let commentHTML = "<h3>陳SIR點評：</h3><table>";
+                    commentParts.forEach(part => {
+                        const [title, ...content] = part.split("\n").filter(line => line.trim());
+                        commentHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
+                    });
+                    commentHTML += "</table>";
+                    document.getElementById("commentResult").innerHTML = commentHTML;
+                }
+            } catch (error) {
+                console.error("提交寫作時出錯:", error);
+                if (error.message === "所有 API 密鑰均無法使用") {
+                    alert("今日 API 調用次數已用完或API無法連接，請明天再試");
+                } else {
+                    alert("點評生成失敗，請重試");
+                }
+                document.getElementById("commentResult").innerHTML = "";
+            }
         }
-    } catch (error) {
-        console.error("提交寫作時出錯:", error);
-        if (error.message === "所有 API 密鑰均無法使用") {
-            alert("今日 API 調用次數已用完或API無法連接，請明天再試");
-        } else if (error.message === "API 請求超時，請檢查網絡連接或稍後再試") {
-            alert("API 請求超時，請檢查網絡連接或稍後再試");
-        } else {
-            alert("點評生成失敗，請重試");
-        }
-        document.getElementById("commentResult").innerHTML = "";
-    }
-}
 
         // 提交閱讀內容
         async function submitReading() {
