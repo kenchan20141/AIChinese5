@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     body: JSON.stringify({
       model: 'deepseek-reasoner',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: max_tokens
+      max_tokens: 8192
     })
   });
 
