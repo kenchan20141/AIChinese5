@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -161,18 +162,6 @@
             min-width: 150px;
         }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.tool-btn {
-    animation: fadeIn 0.2s ease-in-out forwards;
-    opacity: 0;
-}
-
-
-
 #expandToolsBtn {
     background-color: #7fb3d5;
 }
@@ -198,11 +187,10 @@
 #toolsList {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
 }
 
 #toolsList button {
-opacity: 0;
     margin: 10px 0;
     padding: 10px 20px;
     font-size: 16px;
@@ -633,14 +621,14 @@ opacity: 0;
 <button id="selfLearningBtn" style="background-color: #20c997;">📖自學資源</button>
 <button id="yuyiluBtn" style="background-color: #a9cce3;">🎮語弈錄</button>
 
-<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px; z-index: 1001;">
-        <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
-        <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
-        <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
-        <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
-        <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
-        <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
-    </div>
+<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px;">
+    <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
+    <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
+    <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
+    <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
+    <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
+    <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
+</div>
 
 <button id="beishuBtn" style="background-color: #c39bd3;">⏱背書神器</button>
 <button id="sansiBtn" style="background-color: #5e93cc;">🖥️神思(主網）</button>
@@ -931,31 +919,28 @@ opacity: 0;
     
     <script>
 
-// 展開工具按鈕的點擊事件
 document.getElementById("expandToolsBtn").addEventListener("click", function() {
-    const toolsContainer = document.getElementById("toolsContainer");
-    toolsContainer.style.display = "flex";
-    const buttons = document.querySelectorAll("#toolsList button");
-    buttons.forEach((btn, index) => {
-        btn.classList.add("tool-btn");
-        btn.style.animation = ""; // 恢復動畫設置
-        btn.style.animationDelay = `${index * 0.1}s`;
-        setTimeout(() => {
-            btn.style.opacity = "1";
-        }, index * 200);
-    });
+    document.getElementById("toolsContainer").style.display = "flex";
 });
 
-// 關閉工具按鈕的點擊事件
 document.getElementById("closeToolsBtn").addEventListener("click", function() {
     document.getElementById("toolsContainer").style.display = "none";
-    const buttons = document.querySelectorAll("#toolsList button");
-    buttons.forEach(btn => {
-        btn.style.opacity = "0";
-        btn.style.animation = "none"; // 重置動畫狀態
-    });
 });
 
+document.getElementById("toolsContainer").addEventListener("click", function(event) {
+    if (event.target === this) {
+        this.style.display = "none";
+    }
+});
+
+        
+        // API 配置信息
+        const API_KEYS = [
+            "sk-MoqwsgO8P9MEoCrftvdSYA"
+        ];
+        let currentApiKeyIndex = 0;
+        const API_URL = "https://chatapi.akash.network/api/v1/chat/completions";
+        const MODEL = "DeepSeek-R1";
 
 
 const audio = document.getElementById('audio');
@@ -1925,7 +1910,6 @@ async function submitArgumentOutline() {
         }
 
         // 通用 API 調用函數
- // 通用 API 調用函數
      async function callAPI(prompt) {
     let attempts = 0;
     const maxAttempts = API_KEYS.length;
@@ -1978,8 +1962,6 @@ async function submitArgumentOutline() {
         }
     }
 }
-
-        
         // 生成寫作題目
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
