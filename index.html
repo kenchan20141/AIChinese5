@@ -1935,7 +1935,7 @@ function splitPrompt(prompt, maxLength) {
 }
         
 async function callAPI(prompt) {
-    const maxLength = 2000; // 根據API限制調整
+    const maxLength = 4096; // 根據API限制調整
     const segments = splitPrompt(prompt, maxLength);
     const results = [];
     for (const segment of segments) {
