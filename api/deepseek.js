@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'deepseek-reasoner',
+      model: 'deepseek-chat',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 1000
     })
