@@ -1928,7 +1928,7 @@ async function submitArgumentOutline() {
         // 通用 API 調用函數
    async function callAPI(prompt) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 設置 60 秒超時
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 設置 60 秒超時
 
     try {
         const response = await fetch('/api/deepseek', {
