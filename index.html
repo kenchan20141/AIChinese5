@@ -1,12 +1,10 @@
 
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>神思</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     
@@ -161,70 +159,6 @@
         .table-container th:nth-child(5), .table-container td:nth-child(5) {
             min-width: 150px;
         }
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.tool-btn {
-    animation: fadeIn 0.2s ease-in-out forwards;
-    opacity: 0;
-}
-
-
-
-#expandToolsBtn {
-    background-color: #7fb3d5;
-}
-
-#expandToolsBtn:hover {
-    background-color: #aed6f1;
-}
-
-
-#toolsContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-#toolsList {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-#toolsList button {
-opacity: 0;
-    margin: 10px 0;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#closeToolsBtn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-}
 
 #toggleOverviewBtn {
             background-color: #A9A9A9; /* 灰色背景 */
@@ -454,7 +388,7 @@ opacity: 0;
     </div>
 </div>
 
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <style>
     #hitokoto-container {
@@ -623,9 +557,6 @@ opacity: 0;
 <!-- 工具選擇 -->
 <div class="box">
     <h2>選擇工具：</h2>
-    <button id="expandToolsBtn">展開工具</button>
-    <div id="toolsContainer" style="display: none;">
-        <div id="toolsList">
     <button id="manuscriptPaperBtn">🖥智能原稿紙</button>
     <button id="aiGeneratorBtn" style="background-color: #008080;">📝AI擬題</button>
     <button id="zhuoyuBtn" style="background-color: #800000;">✏️琢玉</button>
@@ -634,20 +565,17 @@ opacity: 0;
 <button id="selfLearningBtn" style="background-color: #20c997;">📖自學資源</button>
 <button id="yuyiluBtn" style="background-color: #a9cce3;">🎮語弈錄</button>
 
-<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px; z-index: 1001;">
-        <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
-        <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
-        <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
-        <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
-        <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
-        <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
-    </div>
+<div id="yuyiluMenu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px;">
+    <a href="https://kenchan20141.github.io/f1chinese/" target="_blank">中一</a><br>
+    <a href="https://kenchan20141.github.io/chinese2/" target="_blank">中二</a><br>
+    <a href="https://kenchan20141.github.io/chinese3/" target="_blank">中三</a><br>
+    <a href="https://kenchan20141.github.io/f4chinese/" target="_blank">中四</a><br>
+    <a href="https://kenchan20141.github.io/chinese/" target="_blank">中五</a><br>
+    <a href="https://kenchan20141.github.io/chinese6/" target="_blank">中六</a>
+</div>
 
 <button id="beishuBtn" style="background-color: #c39bd3;">⏱背書神器</button>
-<button id="sansiBtn" style="background-color: #5e93cc;">🖥️神思(備用）</button>
-</div>
-       <button id="closeToolsBtn"><i class="fas fa-times"></i></button>
-    </div>
+    <button id="sansiBtn" style="background-color: #5e93cc;">🖥️神思(備用）</button>
 </div>
     
    <!-- 範疇選擇 -->
@@ -932,30 +860,6 @@ opacity: 0;
     
     <script>
 
-// 展開工具按鈕的點擊事件
-document.getElementById("expandToolsBtn").addEventListener("click", function() {
-    const toolsContainer = document.getElementById("toolsContainer");
-    toolsContainer.style.display = "flex";
-    const buttons = document.querySelectorAll("#toolsList button");
-    buttons.forEach((btn, index) => {
-        btn.classList.add("tool-btn");
-        btn.style.animation = ""; // 恢復動畫設置
-        btn.style.animationDelay = `${index * 0.1}s`;
-        setTimeout(() => {
-            btn.style.opacity = "1";
-        }, index * 200);
-    });
-});
-
-// 關閉工具按鈕的點擊事件
-document.getElementById("closeToolsBtn").addEventListener("click", function() {
-    document.getElementById("toolsContainer").style.display = "none";
-    const buttons = document.querySelectorAll("#toolsList button");
-    buttons.forEach(btn => {
-        btn.style.opacity = "0";
-        btn.style.animation = "none"; // 重置動畫狀態
-    });
-});
 
 
 
@@ -1225,11 +1129,9 @@ document.getElementById("beishuBtn").addEventListener("click", function() {
     window.open("https://kenchan20141.github.io/timer/", "_blank");
 });
 
-
 document.getElementById("sansiBtn").addEventListener("click", function() {
-    window.open("https://sansi.vercel.app/", "_blank");
+    window.open("https://kenchan20141.github.io/AIChinese/", "_blank");
 });
-
 
 document.getElementById("yuyiluBtn").addEventListener("click", function(event) {
     const menu = document.getElementById("yuyiluMenu");
@@ -1925,7 +1827,7 @@ async function submitArgumentOutline() {
             }
         }
 
-        // 通用 API 調用函數
+         // 通用 API 調用函數
     async function callAPI(prompt) {
   try {
     const response = await fetch('/api/deepseek', {
@@ -1933,7 +1835,7 @@ async function submitArgumentOutline() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ prompt, max_tokens: 8192 })
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
@@ -1948,7 +1850,6 @@ async function submitArgumentOutline() {
   }
 }
 
-        
         // 生成寫作題目
         async function generateTopic() {
             const writingType = document.getElementById("writingType").value;
@@ -2621,4 +2522,3 @@ async function submitArgumentOutline() {
     
 </body>
 </html>
-
