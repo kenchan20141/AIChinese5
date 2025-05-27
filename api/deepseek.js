@@ -1,9 +1,4 @@
-const fetch = require('node-fetch');
-
-module.exports = async (req, res) => {
-  const { prompt } = req.body;
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-
+try {
   const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -17,6 +12,14 @@ module.exports = async (req, res) => {
     })
   });
 
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`API 錯誤: ${errorData.error.message || response.statusText}`);
+  }
+
   const data = await response.json();
   res.status(200).json(data);
-};
+} catch (error) {
+  console.error('API 調用錯誤:', error);
+  res.status(500).json({ error: error.message });
+}
