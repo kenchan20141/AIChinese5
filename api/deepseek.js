@@ -19,12 +19,12 @@ module.exports = async (req, res) => {
     {
       model: 'deepseek-reasoner',
       messages: [{ role: 'user', content: firstHalf }],
-      max_tokens: 500
+      max_tokens: 450
     },
     {
       model: 'deepseek-reasoner',
       messages: [{ role: 'user', content: secondHalf }],
-      max_tokens: 500
+      max_tokens: 450
     }
   ];
 
