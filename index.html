@@ -35,6 +35,15 @@
             color: #333;
         }
 
+.rewrite-explanation {
+    white-space: pre-wrap; /* 保留換行符並自動換行 */
+    word-wrap: break-word; /* 長單詞換行 */
+    font-family: 'Noto Serif TC', serif;
+    font-size: inherit; /* 繼承父元素的字體大小 */
+    margin: 0; /* 移除預設外邊距 */
+    padding: 0; /* 移除預設內邊距 */
+}
+        
 
  .copyright-footer {
             position: fixed;
@@ -173,7 +182,6 @@
 }
 
 
-
 #expandToolsBtn {
     background-color: #7fb3d5;
 }
@@ -226,6 +234,13 @@ opacity: 0;
     cursor: pointer;
 }
 
+#commentResult {
+    width: 100%;
+    overflow-wrap: break-word;
+}
+
+
+        
 #toggleOverviewBtn {
             background-color: #A9A9A9; /* 灰色背景 */
             color: white; /* 白色文字 */
@@ -2099,7 +2114,7 @@ async function submitArgumentOutline() {
         1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
         2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「結構段重點」和「情節大要」。使用「[part]」標記每個結構段的開始，然後在下一行「結構段重點：」後跟內容，再下一行「情節大要：」後跟內容。
         3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
-        4. 請確保內容簡潔明了。
+        4. 請確保內容簡潔明了，不可以顯示「--- ###」。
         題目：${topic}
         大綱結構：${structure === "fourPart" ? "起承轉合" : "三線（起、一線、二線、三線、合）"}
         用戶輸入的大綱：
@@ -2206,7 +2221,7 @@ content.forEach(item => {
 });
 rewriteTableHTML += "</table></div>";
 
-const explanationHTML = `<h3>改寫說明：</h3><pre>${explanationPart.trim() || "無說明"}</pre>`;
+const explanationHTML = `<h3>改寫說明：</h3><div class="rewrite-explanation">${explanationPart.trim() || "無說明"}</div>`;
 document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML + explanationHTML;
         } else if (writingType === "敘事物象") {
             const elements = comment.split("\n").map(item => item.trim()).filter(item => item);
