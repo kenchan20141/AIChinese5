@@ -2098,7 +2098,8 @@ async function submitArgumentOutline() {
         prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。要求：
         1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
         2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「結構段重點」和「情節大要」。使用「[part]」標記每個結構段的開始，然後在下一行「結構段重點：」後跟內容，再下一行「情節大要：」後跟內容。
-        3. 請確保內容簡潔明了。
+        3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
+        4. 請確保內容簡潔明了。
         題目：${topic}
         大綱結構：${structure === "fourPart" ? "起承轉合" : "三線（起、一線、二線、三線、合）"}
         用戶輸入的大綱：
@@ -2140,12 +2141,14 @@ async function submitArgumentOutline() {
     try {
         const comment = await callAPI(prompt);
         if (writingType === "大綱") {
-            const sections = comment.split(/=== (.+?) ===/).filter(s => s.trim());
-            const commentIndex = sections.indexOf("點評及建議");
-            const rewriteIndex = sections.indexOf("改寫後的大綱");
+    const sections = comment.split(/=== (.+?) ===/).filter(s => s.trim());
+    const commentIndex = sections.indexOf("點評及建議");
+    const rewriteIndex = sections.indexOf("改寫後的大綱");
+    const explanationIndex = sections.indexOf("改寫說明");
 
-            const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
-            const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
+    const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
+    const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
+    const explanationPart = explanationIndex !== -1 ? sections[explanationIndex + 1] : "";
 
             function parseCommentPart(commentPart) {
                 const comments = {};
@@ -2185,25 +2188,26 @@ async function submitArgumentOutline() {
                 return rewrites;
             }
 
-            const comments = parseCommentPart(commentPart);
-            const rewrites = parseRewritePart(rewritePart);
+          const comments = parseCommentPart(commentPart);
+const rewrites = parseRewritePart(rewritePart);
 
-            let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
-            content.forEach(item => {
-                const comment = comments[item.part]?.comment || "未生成點評";
-                const suggestion = comments[item.part]?.suggestion || "未生成建議";
-                commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
-            });
-            commentTableHTML += "</table></div>";
+let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="commentTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>點評</th><th>建議</th></tr>`;
+content.forEach(item => {
+    const comment = comments[item.part]?.comment || "未生成點評";
+    const suggestion = comments[item.part]?.suggestion || "未生成建議";
+    commentTableHTML += `<tr><td>${item.part}</td><td>${item.focus}</td><td>${item.plot}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
+});
+commentTableHTML += "</table></div>";
 
-            let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
-            content.forEach(item => {
-                const rewrite = rewrites[item.part] || { focus: "未生成結構段重點", plot: "未生成情節大要" };
-                rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.focus || "未生成結構段重點"}</td><td>${rewrite.plot || "未生成情節大要"}</td></tr>`;
-            });
-            rewriteTableHTML += "</table></div>";
+let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="rewriteTable"><tr><th>部份</th><th>結構段重點</th><th>情節大要</th></tr>`;
+content.forEach(item => {
+    const rewrite = rewrites[item.part] || { focus: "未生成結構段重點", plot: "未生成情節大要" };
+    rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.focus || "未生成結構段重點"}</td><td>${rewrite.plot || "未生成情節大要"}</td></tr>`;
+});
+rewriteTableHTML += "</table></div>";
 
-            document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML;
+const explanationHTML = `<h3>改寫說明：</h3><pre>${explanationPart.trim() || "無說明"}</pre>`;
+document.getElementById("commentResult").innerHTML = commentTableHTML + rewriteTableHTML + explanationHTML;
         } else if (writingType === "敘事物象") {
             const elements = comment.split("\n").map(item => item.trim()).filter(item => item);
             let elementsHTML = "<h3>生成的物象（50項）：</h3><ul>";
