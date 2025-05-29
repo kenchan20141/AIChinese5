@@ -68,19 +68,42 @@
 .sun {
     position: absolute;
     top: 10%;
-    left: 50%;
+    left: 5%; /* 調整為靠左 */
     width: 100px;
     height: 100px;
     background-color: yellow;
     border-radius: 50%;
     box-shadow: 0 0 20px yellow;
     animation: sunGlow 2s infinite alternate;
+    z-index: -1; /* 確保太陽在其他元素下方，避免遮擋按鍵 */
 }
 
+/* 平板設備調整 */
+@media (max-width: 768px) {
+    .sun {
+        left: 5%;
+        top: 5%;
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* 手機設備調整 */
+@media (max-width: 480px) {
+    .sun {
+        left: 2%;
+        top: 2%;
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* 太陽光芒動畫（保持不變） */
 @keyframes sunGlow {
     0% { box-shadow: 0 0 20px yellow; }
     100% { box-shadow: 0 0 40px yellow; }
 }
+
 
 /* 多雲效果：雲朵 */
 .cloud {
