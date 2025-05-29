@@ -64,7 +64,54 @@
             }
         }
 
-        .snowflake {
+       /* 晴天效果：太陽 */
+.sun {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    background-color: yellow;
+    border-radius: 50%;
+    box-shadow: 0 0 20px yellow;
+    animation: sunGlow 2s infinite alternate;
+}
+
+@keyframes sunGlow {
+    0% { box-shadow: 0 0 20px yellow; }
+    100% { box-shadow: 0 0 40px yellow; }
+}
+
+/* 多雲效果：雲朵 */
+.cloud {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: cloudMove linear infinite;
+}
+
+@keyframes cloudMove {
+    0% { transform: translateX(-100vw); }
+    100% { transform: translateX(100vw); }
+}
+
+/* 下雨效果：雨滴 */
+.raindrop {
+    position: absolute;
+    width: 2px;
+    height: 10px;
+    background-color: #ADD8E6; /* 淺藍色，更自然 */
+    opacity: 0.7; /* 增加透明度 */
+    animation: rainFall linear infinite;
+}
+@keyframes rainFall {
+    0% { transform: translateY(-10px); }
+    100% { transform: translateY(100vh); }
+}
+
+/* 下雪效果：雪花（保留並調整） */
+.snowflake {
     position: absolute;
     background-color: #e0f7fa;
     border-radius: 50%;
@@ -77,6 +124,7 @@
     50% { transform: translateX(20px); }
     100% { top: 100vh; transform: translateX(0); }
 }
+
 
         
 /* 確保標題不被背景影響 */
@@ -678,7 +726,7 @@ opacity: 0;
 </div>
       <button id="closeToolsBtn"><i class="fas fa-times"></i></button>
     </div>
-    <div id="snowContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1001; pointer-events: none;"></div>
+   <div id="effectContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1001; pointer-events: none;"></div>
 </div>
     
    <!-- 範疇選擇 -->
@@ -963,7 +1011,9 @@ opacity: 0;
     
     <script>
 
-// 展開工具按鈕的點擊事件
+// 定義全局變數來追踪計時器
+let weatherAnimationTimeout = null;
+
 document.getElementById("expandToolsBtn").addEventListener("click", function() {
     const toolsContainer = document.getElementById("toolsContainer");
     toolsContainer.style.display = "flex";
@@ -976,28 +1026,100 @@ document.getElementById("expandToolsBtn").addEventListener("click", function() {
             btn.style.opacity = "1";
         }, index * 200);
     });
-    const snowContainer = document.getElementById("snowContainer");
-    snowContainer.style.display = "block";
-    createSnowflakes(50); // 創建50個雪花
-    setTimeout(() => {
-        snowContainer.style.display = "none";
-    }, 10000); // 3秒後隱藏雪花容器
+
+    // 隨機選擇天氣效果
+    const weatherEffects = ["sunny", "cloudy", "rainy", "snowy"];
+    const randomEffect = weatherEffects[Math.floor(Math.random() * weatherEffects.length)];
+
+    const effectContainer = document.getElementById("effectContainer");
+    effectContainer.innerHTML = ""; // 清空之前的動畫元素
+    effectContainer.style.display = "block";
+
+    // 如果有之前的計時器，先清除
+    if (weatherAnimationTimeout) {
+        clearTimeout(weatherAnimationTimeout);
+    }
+
+    // 根據天氣效果創建動畫元素
+    switch (randomEffect) {
+        case "sunny":
+            createSun();
+            break;
+        case "cloudy":
+            createClouds(5);
+            break;
+        case "rainy":
+            createRain(100);
+            break;
+        case "snowy":
+            createSnowflakes(50);
+            break;
+    }
+
+    // 設置新的計時器，10秒後隱藏動畫容器
+    weatherAnimationTimeout = setTimeout(() => {
+        effectContainer.style.display = "none";
+    }, 10000); // 10秒後隱藏
 });
 
-// 關閉工具按鈕的點擊事件
 document.getElementById("closeToolsBtn").addEventListener("click", function() {
     document.getElementById("toolsContainer").style.display = "none";
-    document.getElementById("snowContainer").style.display = "none";
+    const effectContainer = document.getElementById("effectContainer");
+    effectContainer.style.display = "none";
     const buttons = document.querySelectorAll("#toolsList button");
     buttons.forEach(btn => {
         btn.style.opacity = "0";
         btn.style.animation = "none";
     });
+
+    // 清除計時器，確保動畫立即結束
+    if (weatherAnimationTimeout) {
+        clearTimeout(weatherAnimationTimeout);
+        weatherAnimationTimeout = null;
+    }
 });
 
-        function createSnowflakes(count) {
-    const snowContainer = document.getElementById("snowContainer");
-    snowContainer.innerHTML = "";
+// 創建太陽
+function createSun() {
+    const effectContainer = document.getElementById("effectContainer");
+    const sun = document.createElement("div");
+    sun.className = "sun";
+    effectContainer.appendChild(sun);
+}
+
+// 創建雲朵
+function createClouds(count) {
+    const effectContainer = document.getElementById("effectContainer");
+    for (let i = 0; i < count; i++) {
+        const cloud = document.createElement("div");
+        cloud.className = "cloud";
+        const size = Math.random() * 100 + 50;
+        cloud.style.width = `${size}px`;
+        cloud.style.height = `${size / 2}px`;
+        cloud.style.top = `${Math.random() * 50}%`;
+        cloud.style.left = `${Math.random() * 100}%`;
+        cloud.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        cloud.style.animationDelay = `${Math.random() * 5}s`;
+        effectContainer.appendChild(cloud);
+    }
+}
+
+// 創建雨滴
+function createRain(count) {
+    const effectContainer = document.getElementById("effectContainer");
+    for (let i = 0; i < count; i++) {
+        const raindrop = document.createElement("div");
+        raindrop.className = "raindrop";
+        raindrop.style.left = `${Math.random() * 100}%`;
+        raindrop.style.animationDuration = `${Math.random() * 1 + 0.5}s`;
+        raindrop.style.animationDelay = `${Math.random() * 2}s`;
+        effectContainer.appendChild(raindrop);
+    }
+}
+
+// 創建雪花
+function createSnowflakes(count) {
+    const effectContainer = document.getElementById("effectContainer");
     for (let i = 0; i < count; i++) {
         const snowflake = document.createElement("div");
         snowflake.className = "snowflake";
@@ -1011,9 +1133,10 @@ document.getElementById("closeToolsBtn").addEventListener("click", function() {
         snowflake.style.width = `${size}px`;
         snowflake.style.height = `${size}px`;
         snowflake.style.opacity = Math.random() * 0.5 + 0.5;
-        snowContainer.appendChild(snowflake);
+        effectContainer.appendChild(snowflake);
     }
 }
+
 
 
 
