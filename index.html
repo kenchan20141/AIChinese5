@@ -6026,71 +6026,6 @@ select:focus, select:hover {
 
 <script>
 
-
-
-// =======================================================
-// === 統一後端 API 呼叫函式 (指向 api/deepseek.js) ===
-// =======================================================
-
-// 1. 通用 API 調用 (取代原有的 callAPI)
-async function callAPI(prompt, temperature = null) {
-    // 額度檢查保持不變
-    if (!checkGuestUsage()) {
-        throw new Error("Guest usage limit exceeded"); 
-    }
-
-    const TIMEOUT_MS = 100000; // 50-100秒超時
-    const controller = new AbortController();
-    globalAbortController = controller; // 綁定全域控制器以便取消
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-    try {
-        // 發送請求到您自己的後端
-        const response = await fetch('/api/deepseek', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            // 注意：這裡配合您的後端，只傳送 prompt，系統指令直接附加在字串後
-            body: JSON.stringify({
-                prompt: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。"
-            }),
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            // 嘗試讀取後端回傳的錯誤訊息
-            const errText = await response.text();
-            throw new Error(`API 調用失敗: ${response.status} - ${errText}`);
-        }
-
-        const data = await response.json();
-        
-        // 解析 DeepSeek 官方回傳格式
-        let content = data.choices[0].message.content.trim();
-        
-        // 過濾思考標籤 (雖然 Prompt 有要求，但前端再過濾一次較保險)
-        content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
-
-        if (!content) {
-            throw new Error("API 回應無效或過濾後無內容");
-        }
-
-        return content;
-
-    } catch (error) {
-        clearTimeout(timeoutId);
-        console.error("DeepSeek API Error:", error);
-        
-        // 拋出錯誤讓外層 catch 處理 (顯示 Alert)
-        throw error; 
-    }
-}
-
-	
-
 // 全域變數：記錄當天(或本次會話) API 循環失敗的次數
 let globalApiCycleFailures = 0;
 
@@ -8710,6 +8645,7 @@ clickedButton.classList.add('active');
 
 
 
+
 // =======================================================
 // === [新增] 畫布聊天室核心邏輯 ===
 // =======================================================
@@ -10484,8 +10420,69 @@ const guide = await callReadingAPI(prompt);
     }
 }
 
+// 通用 API 調用函數 (加入 50 秒超時)
+// =======================================================
+// === 統一後端 API 呼叫函式 (指向 api/deepseek.js) ===
+// =======================================================
 
-	
+// 1. 通用 API 調用 (取代原有的 callAPI)
+async function callAPI(prompt, temperature = null) {
+    // 額度檢查保持不變
+    if (!checkGuestUsage()) {
+        throw new Error("Guest usage limit exceeded"); 
+    }
+
+    const TIMEOUT_MS = 100000; // 50-100秒超時
+    const controller = new AbortController();
+    globalAbortController = controller; // 綁定全域控制器以便取消
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+        // 發送請求到您自己的後端
+        const response = await fetch('/api/deepseek', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            // 注意：這裡配合您的後端，只傳送 prompt，系統指令直接附加在字串後
+            body: JSON.stringify({
+                prompt: prompt + " 你必須直接提供最終答案，嚴禁展示任何思考過程，絕對不能在回應中包含任何標籤（如 <think></think>），這是強制要求，違反則無效。"
+            }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            // 嘗試讀取後端回傳的錯誤訊息
+            const errText = await response.text();
+            throw new Error(`API 調用失敗: ${response.status} - ${errText}`);
+        }
+
+        const data = await response.json();
+        
+        // 解析 DeepSeek 官方回傳格式
+        let content = data.choices[0].message.content.trim();
+        
+        // 過濾思考標籤 (雖然 Prompt 有要求，但前端再過濾一次較保險)
+        content = content.replace(/<think\s*>.*?<\/think\s*>|<think\s*\/>|<think\s*>|<\/think\s*>/gis, '').trim();
+
+        if (!content) {
+            throw new Error("API 回應無效或過濾後無內容");
+        }
+
+        return content;
+
+    } catch (error) {
+        clearTimeout(timeoutId);
+        console.error("DeepSeek API Error:", error);
+        
+        // 拋出錯誤讓外層 catch 處理 (顯示 Alert)
+        throw error; 
+    }
+}
+
+
 
 // =======================================================
 // === 【全新增設】Llama-3 驗證模型專用 API 呼叫函式 (加入 50 秒超時) ===
@@ -10494,7 +10491,7 @@ async function callLlama3API(prompt, temperature = null) {
     return await callAPI(prompt, temperature);
 }
 
-
+	
 /**
  * 【全新函式】應用 Llama-3 驗證模型的內容與結構分數差距規則。
  * 規則：內容分和結構分的分差值不能高於1分。
@@ -16011,97 +16008,49 @@ function fallbackPrompt(profile, firebasePath) {
 // ===============================================================
 
 // 1. 覆寫：全校搜尋函式 (移除重新整理，改為即時彈窗)
+// === 修正版：搜尋學生新位置 (只查索引，禁止全庫掃描) ===
 async function findStudentNewLocation(studentName) {
-    console.log(`[系統] 正在全校搜尋學生新位置: ${studentName}...`);
+    // 因為我們無法再進行全校掃描 (Rules 已禁止)，
+    // 我們只能依賴 email_mapping。如果 email_mapping 也沒資料，
+    // 就只能提示學生重新登入並輸入正確資料。
     
-    try {
-        const snapshot = await database.ref('students').once('value');
-        const allData = snapshot.val();
+    // 嘗試從本地緩存的 Profile 中獲取電郵來查索引
+    const s = JSON.parse(localStorage.getItem('studentProfile'));
+    
+    if (s && s.email) {
+        const newProfile = await findProfileByEmail(s.email);
         
-        let found = false;
-        let newGrade = '';
-        let newClass = '';
-        let newInfo = null;
-
-        if (allData) {
-            for (const grade in allData) {
-                for (const cls in allData[grade]) {
-                    const studentsInClass = allData[grade][cls];
-                    if (studentsInClass && studentsInClass[studentName]) {
-                        found = true;
-                        newGrade = grade;
-                        newClass = cls;
-                        newInfo = studentsInClass[studentName].profile;
-                        break;
-                    }
-                }
-                if (found) break;
-            }
-        }
-
-        if (found && newInfo) {
-            // === 情況 A: 找到新位置 (自動修正並彈窗) ===
-            const newProfile = {
-                name: studentName,
-                grade: newGrade,
-                class: newClass,
-                number: newInfo.number || "",
-                email: newInfo.email
-            };
-            
-            // 1. 更新本地儲存
+        if (newProfile) {
+            // 在索引中找到了 (可能是別處登入過建立了索引)
             localStorage.setItem('studentProfile', JSON.stringify(newProfile));
- 
-            // ★★★ 新增這段：強制清空本地 IndexedDB 歷史紀錄 ★★★
-            // 因為已經轉班，舊的紀錄不再適用，且防止回傳到新班級資料庫
+            
+            // 清空舊的本地紀錄
             try {
                 const db = await openHistoryDB();
                 const transaction = db.transaction([STORE_NAME], 'readwrite');
                 const store = transaction.objectStore(STORE_NAME);
-                store.clear(); // <--- 徹底清空
-                console.log("已因應轉班清除本地舊紀錄");
-            } catch (e) {
-                console.error("清除本地紀錄失敗", e);
-            }
-            // ★★★ 新增結束 ★★★
+                store.clear();
+            } catch (e) {}
+ 
+            alert(`👋 歡迎回來！\n系統偵測到您的資料位置已更新。\n\n新位置：${newProfile.grade}${newProfile.class} 班\n(舊紀錄已封存)`);
             
-            // 2. 顯示提示
-            alert(`👋 歡迎回來！\n系統偵測到新學年資料變更。\n\n您的位置已更新為：${newGrade}${newClass} 班\n(舊的歷史紀錄已封存並移除)`);
-            
-            // 3. ★ 核心修正：立即更新 UI，不重新整理頁面 ★
             updateWelcomeMessage(newProfile);
-            loadAssignments(newGrade, newClass);
-            
-            // 4. 重啟監聽器 (針對新班級)
+            loadAssignments(newProfile.grade, newProfile.class);
             monitorPendingAssignments();
-            startAutoSyncListener(); 
-
-            // 5. ★ 關鍵動作：立即彈出班號輸入視窗 ★
-            const newPath = `students/${newGrade}/${newClass}/${studentName}/profile`;
+            startAutoSyncListener();
+            
+            // 彈出班號確認
+            const newPath = `students/${newProfile.grade}/${newProfile.class}/${newProfile.name}/profile`;
             promptForNewClassNumber(newProfile, newPath);
-            
-            return; 
-
-        } else {
-            // 2. 搜尋待分班區
-            const pendingSnap = await database.ref('pending_allocation/' + studentName).once('value');
-            
-            if (pendingSnap.exists()) {
-                alert("⏳ 您的資料目前在「待分班名單」中 (例如中三升中四)。\n請等待老師完成分班作業後再登入。");
-                return; 
-            }
-
-            // 3. 徹底找不到
-            console.warn("資料庫無此人，判定為舊學年殘留資料。");
-            alert("⚠️ 系統資料庫已更新。\n\n您的舊身份已失效，請重新登入。");
-            handleStudentLogout(); 
+            return;
         }
-
-    } catch (error) {
-        console.error("搜尋錯誤:", error);
     }
+ 
+    // 如果索引也沒有 (真的找不到)，則提示重新登入
+    console.warn("無法定位學生位置 (全庫掃描已禁用)。");
+    alert("⚠️ 系統資料庫已更新或找不到您的位置。\n\n請重新登入，並確保選擇正確的「年級」與「班別」。");
+    handleStudentLogout();
 }
-
 // 2. 覆寫：自動同步監聽器 (新增 Profile 監聽，實現自動觸發)
 // 用於儲存 Profile 監聽器，避免重複
 let autoProfileListenerRef = null;
@@ -16228,29 +16177,27 @@ async function handleSchoolLogin() {
 }
 
 
-// === 新增：全校電郵搜尋函式 ===
+// === [修正版] 全校電郵搜尋函式 (只查索引表，極速且省流量) ===
 async function findProfileByEmail(targetEmail) {
     try {
-        // 讀取全校學生資料 (注意：若學生人數非常多，建議未來改用 Firebase Index)
-        const snapshot = await database.ref('students').once('value');
-        const allData = snapshot.val();
+        // 1. 將電郵轉為 Base64 (因為你的 email_mapping 是用 Base64 當 Key)
+        const emailKey = btoa(targetEmail);
         
-        if (!allData) return null;
-
-        // 遍歷所有年級、班級、學生
-        for (const grade in allData) {
-            for (const cls in allData[grade]) {
-                const studentsInClass = allData[grade][cls];
-                for (const name in studentsInClass) {
-                    const profile = studentsInClass[name].profile;
-                    // 如果找到電郵相符的紀錄
-                    if (profile && profile.email === targetEmail) {
-                        return profile; // 回傳該學生的原始資料
-                    }
-                }
-            }
+        // 2. 直接讀取 email_mapping 下的特定節點
+        // 這只會下載該用戶的 Profile，不會下載 History，也不會下載其他人的資料
+        const snapshot = await database.ref(`email_mapping/${emailKey}`).once('value');
+        const profile = snapshot.val();
+        
+        if (profile) {
+            console.log("✅ 透過索引表快速找到用戶:", profile.name);
+            return profile; // 回傳該學生的基本資料
         }
-        return null; // 沒找到，代表是新用戶
+ 
+        // 3. 如果索引表找不到，我們 **絕對不要** 掃描全校資料庫 ('students')
+        // 直接回傳 null，讓系統改用「手動輸入的班級姓名」去嘗試登入
+        console.log("索引表中未找到此電郵，視為新用戶或需手動驗證。");
+        return null;
+ 
     } catch (error) {
         console.error("搜尋電郵失敗:", error);
         return null;
@@ -16261,143 +16208,77 @@ async function findProfileByEmail(targetEmail) {
 
 // === 修改後：統一處理登入後的邏輯 (加入唯一性檢查) ===
 
-// === 修改後：統一處理登入後的邏輯 (加入唯一性檢查 & 支援新特許用家) ===
+// === 修正版：處理登入結果 (含遷移邏輯) ===
 async function processLoginResult(user, btn, originalContent) {
-    // 1. 獲取用戶輸入的資料 (優先從 SessionStorage 恢復，否則從 DOM 獲取)
     let manualName, grade, cls, number;
-    
     const storedData = sessionStorage.getItem('sansi_temp_student_data');
     if (storedData) {
         const data = JSON.parse(storedData);
-        manualName = data.manualName;
-        grade = data.grade;
-        cls = data.cls;
-        number = data.number;
+        manualName = data.manualName; grade = data.grade; cls = data.cls; number = data.number;
     } else {
         manualName = document.getElementById('studentNameInput')?.value.trim();
         grade = document.getElementById('studentGrade')?.value;
         cls = document.getElementById('studentClass')?.value;
         number = document.getElementById('studentNumber')?.value;
     }
- 
     if (!manualName) {
-        alert("資料遺失，請重新輸入姓名後再試一次。");
+        alert("資料遺失，請重新輸入姓名。");
         if (btn) { btn.innerHTML = originalContent; btn.disabled = false; }
         return;
     }
- 
     const email = user.email;
-    
-    // === 設定特定帳號 (BASE64 編碼) ===
     const DEBUG_USER_B64 = 'a2VuY2hhbjIwMTQxQGdtYWlsLmNvbQ==';   
     const STUDENT_ADD_B64 = 'a2VuY2hhbjIwMTMxQGdtYWlsLmNvbQ==';  
     const SPECIAL_USER_B64 = 'a2VuY2hhbjIwMTUxQGdtYWlsLmNvbQ==';
-    const SPECIAL_USER_2_B64 = 'Y2hhbnN1bWx1aTIwMDVAZ21haWwuY29t'; // ★ 新增：chansumlui2005
- 
+    const SPECIAL_USER_2_B64 = 'Y2hhbnN1bWx1aTIwMDVAZ21haWwuY29t';
     const debugUser = atob(DEBUG_USER_B64);
     const studentUserAdd = atob(STUDENT_ADD_B64);
     const specialUserAdd = atob(SPECIAL_USER_B64);
-    const specialUser2Add = atob(SPECIAL_USER_2_B64); // ★ 解碼
- 
-    // 2. 檢查電郵網域 (允許學校電郵及白名單電郵)
-    if (!email.endsWith('@ccckyc.edu.hk') &&
-        email !== debugUser &&
-        email !== studentUserAdd &&
-        email !== specialUserAdd &&
-        email !== specialUser2Add) { // ★ 加入檢查條件
-        
+    const specialUser2Add = atob(SPECIAL_USER_2_B64);
+    if (!email.endsWith('@ccckyc.edu.hk') && email !== debugUser && email !== studentUserAdd && email !== specialUserAdd && email !== specialUser2Add) {
         await auth.signOut();
-        alert("⛔ 驗證失敗！\n\n請必須使用「@ccckyc.edu.hk」的學校電郵登入。");
+        alert("⛔ 驗證失敗！\n請使用學校電郵登入。");
         sessionStorage.removeItem('sansi_temp_student_data');
         if (btn) { btn.innerHTML = originalContent; btn.disabled = false; }
         return;
     }
- 
-    // === 教師名單識別 ===
-    const TEACHER_B64_LIST = [
-        "Y2trQGNjY2t5Yy5lZHUuaGs=",
-        "dGx5QGNjY2t5Yy5lZHUuaGs=",
-        "bHN0QGNjY2t5Yy5lZHUuaGs=",
-        "Y2tjQGNjY2t5Yy5lZHUuaGs=",
-        "c2tzQGNjY2t5Yy5lZHUuaGs=",
-        "eWhjQGNjY2t5Yy5lZHUuaGs=",
-        "d2ZjQGNjY2t5Yy5lZHUuaGs=",
-        "dHVuZ0BjY2NreWMuZWR1Lmhr",
-        "a2J5QGNjY2t5Yy5lZHUuaGs=",
-        "d3B5QGNjY2t5Yy5lZHUuaGs=",
-        DEBUG_USER_B64
-    ];
- 
+    // 教師與特許用戶判斷 (保持不變)
+    const TEACHER_B64_LIST = ["Y2trQGNjY2t5Yy5lZHUuaGs=", "dGx5QGNjY2t5Yy5lZHUuaGs=", "bHN0QGNjY2t5Yy5lZHUuaGs=", "Y2tjQGNjY2t5Yy5lZHUuaGs=", "c2tzQGNjY2t5Yy5lZHUuaGs=", "eWhjQGNjY2t5Yy5lZHUuaGs=", "d2ZjQGNjY2t5Yy5lZHUuaGs=", "dHVuZ0BjY2NreWMuZWR1Lmhr", "a2J5QGNjY2t5Yy5lZHUuaGs=", "d3B5QGNjY2t5Yy5lZHUuaGs=", DEBUG_USER_B64];
     let isTeacher = false;
-    
-    // 遍歷並解碼比對教師名單
-    for (let b64 of TEACHER_B64_LIST) {
-        try {
-            if (atob(b64) === email) {
-                isTeacher = true;
-                break;
-            }
-        } catch(e) {
-            console.error("解碼錯誤", e);
-        }
-    }
- 
-    if (isTeacher) {
-        console.log("身份識別：教師");
-        // 強制覆寫變數，無視下拉選單的選擇
-        grade = "System";
-        cls = "Test";
-        number = "99";
-        alert(`👋 老師您好！\n系統已識別您的身份，將自動進入「系統測試班」 (System/Test)。\n您的所有操作將不會影響真實學生數據。`);
-    }
- 
-    // === 新增：特許用家 (白名單) 識別 ===
+    for (let b64 of TEACHER_B64_LIST) { try { if (atob(b64) === email) { isTeacher = true; break; } } catch(e) {} }
+    if (isTeacher) { grade = "System"; cls = "Test"; number = "99"; alert("👋 老師您好，進入測試班。"); }
     let isSpecialUser = false;
-    // ★ 加入 specialUser2Add 的判斷
-    if (email === specialUserAdd || email === specialUser2Add) {
-        console.log("身份識別：特許用家 (白名單)");
-        isSpecialUser = true;
-        // 強制覆寫變數，進入白名單區域
-        grade = "Special";
-        cls = "User";
-        // number 保持用戶輸入或設為預設值
-        alert(`👋 歡迎特許用家！\n您已登入白名單帳號，享有無限生成權限。`);
+    if (email === specialUserAdd || email === specialUser2Add) { isSpecialUser = true; grade = "Special"; cls = "User"; alert("👋 歡迎特許用家。"); }
+    // --- 核心修改：搜尋邏輯 ---
+    // 1. 先查索引表 (最快)
+    let existingProfile = await findProfileByEmail(email);
+    
+    // 2. 如果索引表沒有 (舊用戶)，則檢查「用戶手動輸入的位置」
+    // 這一步是關鍵：我們不掃描全校，而是信任用戶輸入的 G/C/Name 去檢查該位置是否存在該電郵
+    if (!existingProfile) {
+        const inputPath = `students/${grade}/${cls}/${manualName}/profile`;
+        try {
+            const snap = await database.ref(inputPath).once('value');
+            if (snap.exists() && snap.val().email === email) {
+                console.log("在輸入位置找到舊用戶，正在建立索引...");
+                existingProfile = snap.val();
+                // 順便補建索引，下次就不用這步了
+                database.ref('email_mapping/' + btoa(email)).set(existingProfile);
+            }
+        } catch(e) { console.error("路徑檢查失敗", e); }
     }
- 
-    // 3. 檢查帳號是否已存在於資料庫
-    const existingProfile = await findProfileByEmail(email);
- 
     if (existingProfile) {
-        // A. 帳號已存在 (登入舊帳號)
+        // 舊用戶登入
         const oldLocation = `${existingProfile.grade}${existingProfile.class}`;
         const newLocation = `${grade}${cls}`;
- 
-        // 如果位置不同，提示用戶 (一般學生轉班的情況)
-        if (oldLocation !== newLocation) {
-            if (!isTeacher && !isSpecialUser) {
-                alert(`⚠️ 偵測到此電郵已註冊！\n\n您已在【${oldLocation}班】擁有帳號。\n系統將登入您的原有帳號。`);
-            }
+        if (oldLocation !== newLocation && !isTeacher && !isSpecialUser) {
+            alert(`⚠️ 偵測到此電郵已註冊於【${oldLocation}班】。\n系統將登入您的原有帳號。`);
         }
- 
-        // 強制遷移邏輯：
-        // 1. 如果是老師，但舊資料不在 System/Test
-        // 2. 如果是特許用家，但舊資料不在 Special/User
+        // 老師/特許強制遷移邏輯
         if ((isTeacher && (existingProfile.grade !== "System" || existingProfile.class !== "Test")) ||
             (isSpecialUser && (existingProfile.grade !== "Special" || existingProfile.class !== "User"))) {
-             
-             console.log("將特殊帳號遷移至指定區域...");
-             // 使用新的強制變數覆蓋舊資料
              await bindStudentIdentity(grade, cls, number, manualName, email, user.uid);
-             
-             // 重新建立 Profile 物件
-             const newProfile = { grade: grade, class: cls, number: number, name: manualName, email: email };
-             localStorage.setItem('studentProfile', JSON.stringify(newProfile));
-             updateWelcomeMessage(newProfile);
-             loadAssignments(grade, cls);
- 
         } else {
-             // 普通學生，或已經在正確位置的特殊帳號
-             // 使用資料庫中的舊資料登入 (忽略本次輸入的班級)
              localStorage.setItem('studentProfile', JSON.stringify(existingProfile));
              updateWelcomeMessage(existingProfile);
              loadAssignments(existingProfile.grade, existingProfile.class);
@@ -16406,24 +16287,15 @@ async function processLoginResult(user, btn, originalContent) {
         sessionStorage.removeItem('sansi_temp_student_data');
         document.getElementById('studentIdentityForm').style.display = 'none';
         document.getElementById('studentCloudPanel').style.display = 'block';
-        
         monitorPendingAssignments();
-        
-        // ★ 呼叫你的恢復封存函式 (如果有的話)
-        if (typeof tryRestoreArchivedHistory === 'function') {
-            await tryRestoreArchivedHistory(JSON.parse(localStorage.getItem('studentProfile')));
-        }
- 
+        if (typeof tryRestoreArchivedHistory === 'function') await tryRestoreArchivedHistory(JSON.parse(localStorage.getItem('studentProfile')));
         await syncHistoryToFirebase(true);
         startAutoSyncListener();
- 
     } else {
-        // B. 新用戶註冊
-        console.log("新用戶註冊...");
-        // 這裡的 grade/cls 已經經過上面的 Teacher/Special 判斷並可能被覆寫
+        // 新用戶註冊 (或輸入的資料與舊資料不符)
+        // 此時 bindStudentIdentity 會寫入 email_mapping
         await bindStudentIdentity(grade, cls, number, manualName, email, user.uid);
         sessionStorage.removeItem('sansi_temp_student_data');
-        
         await syncHistoryToFirebase(true);
         startAutoSyncListener();
     }
@@ -16487,44 +16359,43 @@ async function handleStudentLogout() {
 
 	
 // === 綁定並儲存學生資料到 Database ===
+// === 修正版：綁定學生資料 (同時寫入索引表) ===
 async function bindStudentIdentity(grade, cls, number, name, email, uid) {
     const path = `students/${grade}/${cls}/${name}/profile`;
-
+    const emailKey = btoa(email); // 編碼電郵
+ 
+    const profileData = {
+        name: name, grade: grade, class: cls, number: number, email: email, uid: uid,
+        last_login: new Date().toLocaleString('zh-HK'), status: 'active'
+    };
+ 
     try {
-        // ... (Firebase 更新代碼保持不變) ...
-        const updatePromise = database.ref(path).update({
-            name: name, grade: grade, class: cls, number: number, email: email, uid: uid,
-            last_login: new Date().toLocaleString('zh-HK'), status: 'active'
-        });
-
-        // 建立本地資料物件
-        const profile = { grade, class: cls, number, name, email };
-        localStorage.setItem('studentProfile', JSON.stringify(profile));
-
-        // ★★★ [新增] OneSignal 標籤設定 (參考您的成功案例) ★★★
+        const updates = {};
+        // 1. 寫入學生主要資料
+        updates[path] = profileData;
+        // 2. 寫入電郵索引表 (建立捷徑)
+        updates[`email_mapping/${emailKey}`] = profileData;
+ 
+        await database.ref().update(updates);
+ 
+        // 更新本地
+        localStorage.setItem('studentProfile', JSON.stringify(profileData));
+ 
         if (window.OneSignalDeferred) {
             window.OneSignalDeferred.push(function(OneSignal) {
-                // 這是分類的關鍵：給瀏覽器貼上 "4A" 的標籤
-                OneSignal.User.addTags({
-                    grade: grade,
-                    class: cls,
-                    userType: 'student'
-                });
-                console.log("OneSignal 標籤已設定");
+                OneSignal.User.addTags({ grade: grade, class: cls, userType: 'student' });
             });
         }
-        // ★★★ [新增結束] ★★★
-
-        // ... (原本的 UI 更新代碼) ...
+ 
         alert(`✅ 驗證成功！\n\n歡迎你，${name}。`);
         document.getElementById('studentIdentityForm').style.display = 'none';
         document.getElementById('studentCloudPanel').style.display = 'block';
-        updateWelcomeMessage(profile);
+        updateWelcomeMessage(profileData);
         loadAssignments(grade, cls);
-        await updatePromise;
-
+ 
     } catch (error) {
         console.error("資料庫寫入失敗:", error);
+        alert("資料庫錯誤，請重試: " + error.message);
     }
 }
 	
