@@ -67,6 +67,8 @@ form-action 'self';
 
 
 	<script>
+
+		
 // === 1. Firebase 初始化 (必須放在最頂部) ===
 const firebaseConfig = {
   apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
@@ -2325,7 +2327,12 @@ white-space: nowrap !important; /* 核心指令：強制文字不換行 */
 }
 
 .anime-card.active {
-    transform: translateY(-8px) scale(1.02);
+    /* --- 核心修正 --- */
+    /* 將原本的 -8px 改為 -15px (與 hover 狀態一致) */
+    /* 將原本的 1.02 改為 1.05 (與 hover 狀態一致) */
+    transform: translateY(-15px) scale(1.05) !important;
+    
+    /* --- 以下完全保留您原本的樣式，不作任何更動 --- */
     filter: grayscale(0%);
     box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 0 50px rgba(255, 215, 0, 0.4);
     z-index: 15;
@@ -6021,10 +6028,167 @@ select:focus, select:hover {
     color: white; 
     box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
 }
+
+
+/* =======================================================
+   === [新增] 閱卷員追問區 (畫布聊天室) 樣式 - 歷史紀錄專用 ===
+   ======================================================= */
+
+/* 1. 聊天室外層容器 */
+.canvas-chat-container {
+    margin-top: 40px;
+    padding-top: 25px;
+    border-top: 3px dashed #2A9689; /* 標誌性的綠色虛線 */
+    background-color: #fcfdfd;
+    padding-bottom: 20px;
+    font-family: 'Noto Serif TC', serif;
+    animation: fadeIn 0.5s ease;
+}
+
+/* 2. 標題設計 */
+.canvas-chat-header {
+    color: #2A9689;
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 5px;
+}
+
+/* 3. 聊天紀錄捲動區 (在歷史紀錄中我們通常希望它自動伸展，不要 Scroll，方便列印或閱讀) */
+.canvas-chat-history {
+    background-color: #f0f4f8; /* 淺藍灰背景 */
+    border: 1px solid #d1d9e6;
+    border-radius: 12px;
+    padding: 25px;
+    /* 這裡移除了固定高度 (height: 300px)，改為自動高度，讓歷史紀錄完整顯示 */
+    height: auto !important; 
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 氣泡間距 */
+}
+
+/* 4. 訊息氣泡通用設定 */
+.message-bubble {
+    padding: 15px 20px;
+    border-radius: 18px;
+    line-height: 1.8;
+    font-size: 1rem;
+    max-width: 88%;
+    word-wrap: break-word;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* 5. AI (閱卷員) 氣泡 - 左側 */
+.message-bubble.ai-message {
+    background-color: #ffffff;
+    color: #333;
+    align-self: flex-start; /* 靠左 */
+    border-top-left-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+/* 6. 學生 (用戶) 氣泡 - 右側 */
+.message-bubble.user-message {
+    background-color: #2A9689; /* 主題綠 */
+    color: white;
+    align-self: flex-end; /* 靠右 */
+    border-top-right-radius: 4px;
+    box-shadow: 0 4px 10px rgba(42, 150, 137, 0.2);
+}
+
+/* 7. 強制隱藏歷史紀錄中的輸入框 (保險起見，雖然 JS 會移除) */
+.history-modal-content .canvas-input-area,
+.detail-view .canvas-input-area {
+    display: none !important;
+}
+
+	/* ========================================= */
+/* === [議論-指引] 專屬輸入內容美化 === */
+/* ========================================= */
+
+/* 1. 啟動網格佈局：將容器變為 2 欄 Grid */
+.history-parsed-container.argument-guide-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 左右兩欄平分 */
+    gap: 15px; /* 卡片間距 */
+    background: transparent;
+    padding: 5px;
+}
+
+/* 2. 讓每一個資料區塊變成一張「卡片」 */
+.history-parsed-container.argument-guide-layout .history-item-block {
+    background-color: #fdfcf8; /* 米白底色 */
+    border: 1px solid #e0ddd7; /* 莫蘭迪邊框 */
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    transition: transform 0.2s ease;
+}
+
+/* 懸停微互動 */
+.history-parsed-container.argument-guide-layout .history-item-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-color: #ccc;
+}
+
+/* 3. 特殊處理：第一個區塊 (通常是「題目」) 強制佔滿整行 */
+.history-parsed-container.argument-guide-layout .history-item-block:first-child {
+    grid-column: 1 / -1; /* 跨越所有欄位 */
+    background-color: #f4f6f9; /* 稍微深一點的底色以示區別 */
+    border-left: 4px solid var(--current-theme-color, #6a7a7d); /* 左側加粗色條 */
+}
+
+/* 4. 優化標籤 (Label) 樣式 */
+.history-parsed-container.argument-guide-layout .history-item-label {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #e0e0e0;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* 移除原本的小圓點 (因為卡片式設計不需要了) */
+.history-parsed-container.argument-guide-layout .history-item-label::before {
+    display: none;
+}
+
+/* 5. 優化內容 (Content) 樣式 */
+.history-parsed-container.argument-guide-layout .history-item-content {
+    background-color: transparent !important; /* 移除原本的灰色背景 */
+    border: none !important; /* 移除邊框 */
+    padding: 0 !important;
+    font-size: 1.1rem; /* 字體稍微加大 */
+    color: #444;
+    line-height: 1.6;
+    font-family: 'Noto Serif TC', serif;
+}
+
+/* 6. 手機版響應式：變回單欄垂直排列 */
+@media (max-width: 600px) {
+    .history-parsed-container.argument-guide-layout {
+        grid-template-columns: 1fr; /* 強制單欄 */
+    }
+}
+	
 	
 </style>
 
 <script>
+
+
+
+
 
 // 全域變數：記錄當天(或本次會話) API 循環失敗的次數
 let globalApiCycleFailures = 0;
@@ -8645,8 +8809,6 @@ clickedButton.classList.add('active');
 
 
 
-
-
 // =======================================================
 // === [新增] 畫布聊天室核心邏輯 ===
 // =======================================================
@@ -8677,10 +8839,26 @@ function getCanvasChatHTML(type) {
 }
 
 async function sendCanvasMessage() {
-    const inputEl = document.getElementById("canvasChatInput");
-    const historyBox = document.getElementById("canvasChatHistoryBox");
-    const sendBtn = document.getElementById("canvasChatSendBtn");
+    // 根據當前介面，動態尋找輸入框與按鈕
+    // 因為在歷史紀錄視窗裡，ID 可能會重複，所以優先找離按鈕最近的輸入框
+    let sendBtn = document.getElementById("canvasChatSendBtn");
     
+    // 如果找不到 (可能在歷史視窗裡)，嘗試透過事件觸發點尋找 (更穩健)
+    if (!sendBtn && window.event) {
+        sendBtn = window.event.target.closest('button');
+    }
+    
+    if (!sendBtn) return; // 防呆
+
+    // 尋找對應的輸入框與歷史區域
+    const container = sendBtn.closest('.canvas-chat-container');
+    if (!container) return;
+
+    const inputEl = container.querySelector('textarea');
+    const historyBox = container.querySelector('.canvas-chat-history');
+    
+    if (!inputEl || !historyBox) return;
+
     const userText = sanitizeHTML(inputEl.value.trim());
     if (!userText) return;
 
@@ -8701,108 +8879,44 @@ async function sendCanvasMessage() {
     historyBox.appendChild(aiBubble);
     historyBox.scrollTop = historyBox.scrollHeight;
 
-    const historyText = canvasChatHistory.map(h => `${h.role}: ${h.content}`).join("\n");
+    // 抓取之前的對話紀錄 (從 DOM 抓取，確保所見即所得)
+    // 這裡我們簡單抓取最後 5 則對話，避免 Prompt 太長
+    const bubbles = Array.from(historyBox.querySelectorAll('.message-bubble'));
+    let historyText = "";
+    bubbles.slice(-6, -1).forEach(b => { // 排除剛加的 Loading bubble
+        const role = b.classList.contains('ai-message') ? "Teacher" : "Student";
+        historyText += `${role}: ${b.innerText}\n`;
+    });
     
     let toneNote = "請用日常、親切的語氣回應，多用例子說明。";
     let activeReviewer = "中文老師";
     
-    // === 設定語氣與閱卷員 ===
-    // 檢查是否有陳SIR語氣設定
-    const toneEls = [
-        document.getElementById("writingTone"), 
-        document.getElementById("readingTone"), 
-        document.getElementById("expandTone"), 
-        document.getElementById("argumentWritingTone"),
-        document.getElementById("argumentOutlineTone")
-    ];
-    
-    for (let el of toneEls) {
-        if (el && el.offsetParent !== null && el.value === "chen") { // 檢查是否顯示且值為 chen
-            toneNote = "你現在是陳SIR。請用幽默詼諧、適時揶揄的語氣回應，**必須使用大量Emoji** 🤪✨，表示揶揄時會用🤌這個EMOJI，偶爾用網絡用語。";
-            activeReviewer = "陳SIR";
-            break;
-        }
+    // 嘗試偵測當前語氣設定 (如果在主畫面)
+    const toneEl = document.getElementById("writingTone") || document.getElementById("argumentWritingTone");
+    if (toneEl && toneEl.value === "chen") {
+        toneNote = "你現在是陳SIR。請用幽默詼諧、適時揶揄的語氣回應，**必須使用大量Emoji** 🤪✨，表示揶揄時會用🤌這個EMOJI，偶爾用網絡用語。";
+        activeReviewer = "陳SIR";
     }
 
-    // === 構建 Prompt 上下文 ===
-    let promptContext = "";
+    // 構建 Prompt
+    let promptContext = `【背景資料】\n${currentContextContent || "學生提交的作業"}\n\n【之前的點評】\n${(currentContextReview || "").substring(0, 500)}...`;
     
-    switch (currentContextType) {
-        case 'narrative_writing':
-        case 'argument_writing':
-        case 'narrative_outline':
-        case 'argument_outline':
-        case 'expand_comment':
-        case 'reading_comment':
-            promptContext = `
-            【背景資料】
-            學生提交了一份作業，你已經給出了點評/改寫。
-            學生的內容/原文：
-            ${currentContextContent}
-            ---
-            你的點評/改寫內容：
-            ${currentContextReview}
-            ---
-            【任務】
-            請針對學生的問題進行回應，解釋你的點評理據，或提供更多寫作建議。`;
-            break;
-
-        case 'narrative_guide':
-        case 'argument_guide':
-        case 'expand_guide':
-        case 'reading_guide':
-            promptContext = `
-            【背景資料】
-            你剛剛為學生提供了寫作/答題指引。
-            題目/輸入資料：
-            ${currentContextContent}
-            ---
-            你生成的指引內容：
-            ${currentContextReview}
-            ---
-            【任務】
-            請引導學生如何利用這些指引來完成寫作或回答問題，激發他的靈感。`;
-            break;
-
-        case 'narrative_elements':
-            promptContext = `
-            【背景資料】
-            你剛剛為學生生成了一系列「敘事物象」。
-            題目與背景：
-            ${currentContextContent}
-            ---
-            你生成的物象列表：
-            ${currentContextReview}
-            ---
-            【任務】
-            學生可能會問如何運用某個物象。請教導他如何將這些物象融入故事中，營造意境或推動情節。`;
-            break;
-
-        default:
-            promptContext = `【背景資料】正在進行中文科學習討論。`;
-    }
-
-    const fullPrompt = `
-    你是一位${activeReviewer}。
-    ${promptContext}
-    
-    【對話紀錄】
-    ${historyText}
-    【學生最新問題】
-    ${userText}
-
-    1. 解釋要具體，不要空泛，最好舉例說明。
-    2. 語氣要求：${toneNote}
-    3. 字數控制在 200 字以內。
-    `;
+    const fullPrompt = `你是一位${activeReviewer}。${promptContext}\n【對話紀錄】${historyText}\n【學生最新問題】${userText}\n1. 具體舉例說明。\n2. 語氣要求：${toneNote}\n3. 字數200字內。`;
 
     try {
         const response = await callReadingAPI(fullPrompt);
         let formattedResponse = response.replace(/\n/g, '<br>');
         formattedResponse = formattedResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // 更新 UI
         aiBubble.innerHTML = formattedResponse;
-        canvasChatHistory.push({ role: "Student", content: userText });
-        canvasChatHistory.push({ role: "Teacher", content: response });
+        
+        // ★★★ 關鍵：呼叫存檔 ★★★
+        // 確保 DOM 渲染完成後再存檔
+        setTimeout(async () => {
+            await updateHistoryChat();
+        }, 100);
+
     } catch (error) {
         aiBubble.innerHTML = "抱歉，連線發生錯誤，請重試。";
         console.error(error);
@@ -8811,7 +8925,6 @@ async function sendCanvasMessage() {
         historyBox.scrollTop = historyBox.scrollHeight;
     }
 }
-
 
 
 
@@ -8847,12 +8960,11 @@ const argumentReviewerPreferences = {
 
 
 
+
 // [新增] 閱讀專用 API 呼叫函式 (加入 50 秒超時)
 async function callReadingAPI(prompt, temperature = null) {
     return await callAPI(prompt, temperature);
 }
-
-
 
 
 /* --------------------------------------
@@ -9092,32 +9204,41 @@ guideNote: "必須用繁體字。根據用戶輸入的題目、論點、論據�
 
 // === 修訂：動漫卡片選擇邏輯 (包含音效 + 延遲動畫) ===
 
+// === 修訂：動漫卡片選擇邏輯 (包含音效 + 延遲動畫) ===
+
 // 1. 選取所有新的卡片元素
 const categoryCards = document.querySelectorAll('.anime-card');
 const clickSound = document.getElementById('ui-click-sound');
 
 // 2. 為每個卡片添加點擊事件
 categoryCards.forEach(card => {
-    card.addEventListener('click', function() {
+    card.addEventListener('click', function(e) {
+        // ★★★ 核心修復：使用 e.currentTarget 鎖定當前點擊的元素 ★★★
+        const targetCard = e.currentTarget;
+
         // A. 播放清脆音效
         if (clickSound) {
             clickSound.currentTime = 0; 
             clickSound.volume = 1.0;    
-            clickSound.play().catch(e => console.log("音效播放被瀏覽器阻擋:", e));
+            clickSound.play().catch(err => console.log("音效播放被瀏覽器阻擋:", err));
         }
 
         // B. 立即添加視覺效果 (讓卡片變色/發光)
-        // 先移除其他卡片的 active，避免多選視覺錯亂
-        categoryCards.forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-
-        // C. 獲取目標 Container ID
-        const containerId = this.id.replace('Btn', 'Container');
+        // 先移除所有動漫卡片的 active 樣式
+        document.querySelectorAll('.anime-card').forEach(c => c.classList.remove('active'));
         
-        // D. 【關鍵修改】設置延遲，讓動畫跑完 500ms 後才切換畫面
-        setTimeout(() => {
-            showContainer(containerId, this);
-        }, 500); // 這裡設定 500 毫秒，你可以根據需要調整 (例如 300 或 800)
+        // 只為當前點擊的這張卡片加上 active
+        targetCard.classList.add('active');
+
+        // C. 獲取目標 Container ID (確保有點擊到有 ID 的卡片)
+        if (targetCard.id) {
+            const containerId = targetCard.id.replace('Btn', 'Container');
+            
+            // D. 設置延遲，讓動畫跑完 500ms 後才切換畫面
+            setTimeout(() => {
+                showContainer(containerId, targetCard);
+            }, 500); 
+        }
     });
 });
 
@@ -9963,167 +10084,74 @@ localStorage.removeItem("argumentOutlineData");
 }
 }
 
-	// 替換舊的 submitArgumentOutline 函式
-async function submitArgumentOutline() {
-    const submitBtn = document.getElementById('submitArgumentOutlineBtn');
-    submitBtn.disabled = true;
+// ==========================================
+// === 修訂：提交議論指引 (加入 await) ===
+// ==========================================
+async function submitArgumentGuide() {
+    const submitBtn = document.getElementById('submitArgumentGuideBtn');
+    submitBtn.disabled = true; 
     hideAllSaveHtmlButtons();
 
     try {
-        const topic = localStorage.getItem("argumentCurrentTopic");
-        if (!topic) { alert("請先設定題目"); return; }
+        const topic = document.getElementById("argumentGuideTopic").value.trim();
+        const point = document.getElementById("argumentGuidePoint").value.trim();
+        const evidence = document.getElementById("argumentGuideEvidence").value.trim();
+        const argument = document.getElementById("argumentGuideArgument").value.trim();
         
-        const table = document.getElementById("argumentOutlineTable");
-        const rows = table.rows;
-        let outlineContent = [];
-        let outlineRawText = "";
-
-        for (let i = 1; i < rows.length; i++) {
-            const part = rows[i].cells[0].innerText;
-            const pointTextarea = rows[i].cells[1].querySelector("textarea");
-            const evidenceTextarea = rows[i].cells[2].querySelector("textarea");
-            const point = pointTextarea ? pointTextarea.value.trim() : "";
-            const evidence = evidenceTextarea ? evidenceTextarea.value.trim() : "";
-            if (!point || !evidence) { alert("請填寫所有大綱表格"); return; }
-            outlineContent.push({ part, point, evidence });
-            outlineRawText += `[${part}] 論點：${point} / 論據：${evidence}\n`;
+        if (!topic) {
+            alert("請輸入題目");
+            return; 
         }
 
-        const tone = document.getElementById("argumentOutlineTone").value;
+        const note = categories["議論"].guideNote;
+        const prompt = `請根據以下輸入提供參考建議。要求：
+1. 若只輸入題目，則提供參考論點、參考論據和參考論證（「### 參考論證」的用語要生活化，不要運用過於抽象及理論化的用語，例如「二元對立」等）
+2. 若輸入題目和論點，則提供參考論據和參考論證（「### 參考論證」的用語要生活化，不要運用過於抽象及理論化的用語，例如「二元對立」等）
+3. 若輸入題目和論據，則提供參考論點和參考論證（「### 參考論證」的用語要生活化，不要運用過於抽象及理論化的用語，例如「二元對立」等）
+4. 輸出分為相應的部分：### 參考論點、### 參考論據、### 參考論證
+5. 每個部分以段落形式呈現
+題目：${topic}
+論點：${point || "無"}
+論據：${evidence || "無"}
+論證：${argument || "無"}
+教學筆記：${note}`;
+
+        showLoading("陳SIR 正在思考指引...");
         
-        // ★★★ 語氣指令 ★★★
-        let toneInstruction = "請用嚴肅正經的語氣進行點評和建議。";
-        if (tone === "chen") {
-            toneInstruction = `
-            【重要語氣指令】：
-            1. 在「=== 點評及建議 ===」和「=== 改寫說明 ===」部分：你必須扮演陳SIR，使用**輕鬆、幽默**的口吻，並**大量使用 Emoji** (如 😂, 🤔, ✨, 🔥)，表示揶揄時會用🤌這個EMOJI。
-            2. 在「=== 改寫後的大綱 ===」部分：為了確保學習參考價值，這部分**必須保持絕對嚴肅、學術的風格**，僅提供高質素的內容，**嚴禁使用 Emoji**。`;
-        }
-
-        const note = categories["議論"].outlineCommentNote;
-        const prompt = `請根據以下大綱內容進行點評和建議，並提供改寫後的大綱。
-        ${toneInstruction}
-        要求：
-        1. 在「=== 點評及建議 ===」部分，為每個結構段提供點評和建議。使用「[part]」標記每個結構段的開始，例如「[起]」，然後在下一行「點評：」後跟點評內容，再下一行「建議：」後跟建議內容。
-        2. 在「=== 改寫後的大綱 ===」部分，為每個結構段提供改寫後的「論點」和「論據及論證」。使用「[part]」標記每個結構段的開始，然後在下一行「論點：」後跟內容，再下一行「論據及論證：」後跟內容。
-        3. 在「=== 改寫說明 ===」部分，提供不超過兩點的改寫說明，每點以「1. 」和「2. 」開始。
-        4. 請確保內容簡潔明了，不可以顯示「--- ###」。不要使用Markdown表格。
-        題目：${topic}
-        用戶輸入的大綱：
-        | 部份 | 論點 | 論據及論證 |
-        |------|------|------------|
-        ${outlineContent.map(item => `| ${item.part} | ${item.point} | ${item.evidence} |`).join("\n")}
-        教學筆記：${note}`;
-
-        showLoading("陳SIR 正在審視大綱...");
-
-        const response = await callAPI(prompt, 0);
+        const guide = await callReadingAPI(prompt);
         
-        currentContextContent = outlineRawText;
-        currentContextReview = response;
+        currentContextContent = `題目：${topic}\n論點：${point}\n論據：${evidence}\n論證：${argument}`;
+        currentContextReview = guide;
 
-        // 解析 Response
-        const sections = response.split(/=== (.+?) ===/).filter(s => s.trim());
-        const commentIndex = sections.indexOf("點評及建議");
-        const rewriteIndex = sections.indexOf("改寫後的大綱");
-        const explanationIndex = sections.indexOf("改寫說明");
-        const commentPart = commentIndex !== -1 ? sections[commentIndex + 1] : "";
-        const rewritePart = rewriteIndex !== -1 ? sections[rewriteIndex + 1] : "";
-        const explanationPart = explanationIndex !== -1 ? sections[explanationIndex + 1].trim() : "";
-
-        function parseCommentPart(commentPart) {
-            const comments = {};
-            const regex = /\[(.+?)\]\s*點評：\s*(.+?)(?=\s*建議：|\s*\[|$)/gs;
-            const suggestionRegex = /\[(.+?)\]\s*點評：.+?\s*建議：\s*(.+?)(?=\s*\[|$)/gs;
-            let match;
-            while ((match = regex.exec(commentPart)) !== null) {
-                const part = match[1];
-                comments[part] = comments[part] || {};
-                comments[part].comment = match[2].trim();
-            }
-            while ((match = suggestionRegex.exec(commentPart)) !== null) {
-                const part = match[1];
-                comments[part] = comments[part] || {};
-                comments[part].suggestion = match[2].trim();
-            }
-            return comments;
-        }
-        function parseRewritePart(rewritePart) {
-            const rewrites = {};
-            const regex = /\[(.+?)\]\s*論點：\s*(.+?)(?=\s*論據及論證：|\s*\[|$)/gs;
-            const evidenceRegex = /\[(.+?)\]\s*論點：.+?\s*論據及論證：\s*(.+?)(?=\s*\[|$)/gs;
-            let match;
-            while ((match = regex.exec(rewritePart)) !== null) {
-                const part = match[1];
-                rewrites[part] = rewrites[part] || {};
-                rewrites[part].point = match[2].trim();
-            }
-            while ((match = evidenceRegex.exec(rewritePart)) !== null) {
-                const part = match[1];
-                rewrites[part] = rewrites[part] || {};
-                rewrites[part].evidence = match[2].trim();
-            }
-            return rewrites;
-        }
-        
-        const comments = parseCommentPart(commentPart);
-        const rewrites = parseRewritePart(rewritePart);
-
-        let commentTableHTML = `<h3>陳SIR點評及建議：</h3><div class="table-container"><table id="argumentCommentTable"><tr><th style="width:10%">部份</th><th style="width:15%">論點</th><th style="width:20%">論據及論證</th><th style="width:27.5%">點評</th><th style="width:27.5%">建議</th></tr>`;
-        outlineContent.forEach(item => {
-            const comment = comments[item.part]?.comment || "未生成點評";
-            const suggestion = comments[item.part]?.suggestion || "未生成建議";
-            commentTableHTML += `<tr><td>${item.part}</td><td>${item.point}</td><td>${item.evidence}</td><td>${comment}</td><td>${suggestion}</td></tr>`;
+        const guideParts = guide.split("###").map(part => part.trim()).filter(part => part);
+        let guideHTML = "<h3>陳SIR指引：</h3><table>";
+        guideParts.forEach(part => {
+            const [title, ...content] = part.split("\n").filter(line => line.trim());
+            guideHTML += `<tr><th><strong>${title}</strong></th></tr><tr><td>${content.join("<br>")}</td></tr>`;
         });
-        commentTableHTML += "</table></div>";
+        guideHTML += "</table>";
 
-        let rewriteTableHTML = `<h3>改寫後的大綱：</h3><div class="table-container"><table id="argumentRewriteTable"><tr><th style="width:15%">部份</th><th style="width:40%">論點</th><th style="width:45%">論據及論證</th></tr>`;
-        outlineContent.forEach(item => {
-            const rewrite = rewrites[item.part] || { point: "未生成論點", evidence: "未生成論據及論證" };
-            rewriteTableHTML += `<tr><td>${item.part}</td><td>${rewrite.point || "未生成論點"}</td><td>${rewrite.evidence || "未生成論據及論證"}</td></tr>`;
-        });
-        rewriteTableHTML += "</table></div>";
+        guideHTML += getCanvasChatHTML('argument_guide');
 
-        let explanationHTML = '';
-        if (explanationPart) {
-            const points = explanationPart.split(/\s*(?=\d\.\s*)/).filter(p => p.trim());
-            explanationHTML = `<div class="rewrite-explanation-container"><div class="rewrite-explanation-card"><h3>改寫說明</h3>`;
-            points.forEach(point => {
-                const match = point.match(/^(\d)\.\s*(.*)$/s);
-                if (match) {
-                    const number = match[1];
-                    const text = match[2];
-                    explanationHTML += `<div class="explanation-point"><div class="explanation-number">${number}</div><div class="explanation-text">${text}</div></div>`;
-                }
-            });
-            explanationHTML += `</div></div>`;
-        }
+        openResultCanvas("議論文寫作指引");
+        document.getElementById("resultCanvasBody").innerHTML = guideHTML;
 
-        openResultCanvas("議論文大綱建議");
-        const resultContainer = document.getElementById("resultCanvasBody");
-        const fullAiResultHtml = commentTableHTML + rewriteTableHTML + explanationHTML + getCanvasChatHTML('argument_outline');
-        resultContainer.innerHTML = fullAiResultHtml;
-        resultContainer.style.width = "100%";
+        const historyHTML = guideHTML.split('<div class="canvas-chat-container">')[0];
         
-    
+        // ★★★ 核心修訂：加上 await ★★★
+        // 確保這裡跑完，isSynced 已經變為 true
+        await saveToHistory("議論", "指引", topic, `題目：${topic}\n論點：${point}\n論據：${evidence}\n論證：${argument}`, guideHTML);
         
-        let userInputHistoryStr = `題目：${topic}`;
-        saveToHistory(
-            "議論", 
-            "大綱點評", 
-            topic, 
-            userInputHistoryStr, 
-            fullAiResultHtml 
-        );
-
     } catch (error) {
-        console.error("提交議論大綱時出錯:", error);
-        alert("點評生成失敗，請重試");
+        console.error("提交指引時出錯:", error);
+        alert("指引生成失敗，請重試");
     } finally {
-        submitBtn.disabled = false;
-        hideLoading();
+        submitBtn.disabled = false; 
+        hideLoading(); // Loading 消失時，資料肯定已同步完成
     }
 }
+
+	
 
 async function submitArgumentWriting() {
     const submitBtn = document.getElementById('submitArgumentWritingBtn');
@@ -10169,6 +10197,7 @@ async function submitArgumentWriting() {
         showLoading(`${currentReviewerName} 正在細閱文章...`);
 
         if (isFullReview) {
+            // ... (全方位評分的代碼，displayFullCommentWithGrading 內部已經有 saveToHistory，所以這裡不需要改) ...
             let toneInstruction = "請使用嚴肅正經的語氣。";
             if (tone === "chen") {
                 toneInstruction = `
@@ -10230,15 +10259,11 @@ async function submitArgumentWriting() {
             currentContextContent = content;
             currentContextReview = response;
 
-            // 生成評分報告 (displayFullCommentWithGrading 內部會自動加入一個聊天室)
+            // 生成評分報告 (displayFullCommentWithGrading 內部會自動加入一個聊天室並存檔)
             await displayFullCommentWithGrading('argumentGradingResult', response, null, 'argument', content);
-            
-            // ★★★ 已移除多餘的 append ChatHTML 代碼 ★★★
-            
-         
 
         } else {
-            // (聚焦式點評邏輯 - 不變)
+            // (聚焦式點評邏輯 - 需要修復儲存)
             const scopeDefinitions = `
 - **謀篇**: 嚴謹地對比題目《${topic}》與文章的字面內容。
 - **論點**: 嚴謹地對比題目《${topic}》與文章的字面內容。
@@ -10283,12 +10308,22 @@ async function submitArgumentWriting() {
                 initialReviewHTML += "<p>抱歉，無法生成點評。</p>";
             }
 
+            // 加入聊天室
+            initialReviewHTML += getCanvasChatHTML('argument_writing');
+
             openResultCanvas("聚焦點評結果");
             const resultBody = document.getElementById("resultCanvasBody");
+            resultBody.innerHTML = initialReviewHTML;
             
-            // ★★★ 手動追加 Chat ★★★
-            resultBody.innerHTML = initialReviewHTML + getCanvasChatHTML('argument_writing');
-         
+            // ★★★ 關鍵修復：這裡原本沒有調用 saveToHistory，現在補上 ★★★
+            const htmlToSave = captureContainerHTML('resultCanvasBody'); 
+            saveToHistory(
+                "議論", 
+                "文章點評", 
+                topic || "無題目", 
+                `題目：${topic}\n\n文章：${content}\n(聚焦點評：${selectedScopes.join("、")})`, 
+                htmlToSave
+            );
         }
 
     } catch (error) {
@@ -10299,7 +10334,6 @@ async function submitArgumentWriting() {
         hideLoading();
     }
 }
-
 
 // 【新增】用於儲存解題指引對話的上下文
 let currentGuideTopic = '';
@@ -10410,7 +10444,7 @@ const guide = await callReadingAPI(prompt);
 
         // 儲存 (移除聊天室)
         const historyHTML = guideHTML.split('<div class="canvas-chat-container">')[0];
-        saveToHistory("議論", "指引", topic, `題目：${topic}\n論點：${point}\n論據：${evidence}\n論證：${argument}`, historyHTML);
+        saveToHistory("議論", "指引", topic, `題目：${topic}\n論點：${point}\n論據：${evidence}\n論證：${argument}`, guideHTML);
         
     
     } catch (error) {
@@ -10710,77 +10744,55 @@ async function continueWritingGuideDiscussion() {
     userMessageBubble.textContent = userInputText;
     chatHistoryDiv.appendChild(userMessageBubble);
     
-    // 2. 將使用者訊息存入歷史紀錄
     writingGuideChatHistoryData.push({ sender: 'user', message: userInputText });
     document.getElementById("writingGuideUserInput").value = "";
     chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
-    // 3. 顯示 AI 正在回應
+    // 2. 顯示 AI 正在回應
     const aiMessageBubble = document.createElement('div');
     aiMessageBubble.className = 'message-bubble ai-message';
     aiMessageBubble.textContent = `陳SIR正在回應...`;
     chatHistoryDiv.appendChild(aiMessageBubble);
     chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
-    // 4. 準備對話歷史文字 (去除 HTML 標籤，讓 AI 讀得更清楚)
-    // 這裡我們把之前的對話整理成純文字格式
+    // 3. 準備 Prompt
     const conversationHistoryForPrompt = writingGuideChatHistoryData.map(item => {
         const role = item.sender === 'user' ? '學生' : '陳SIR';
-        // 簡單去除 HTML 標籤以防干擾 Prompt
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = item.message;
         const cleanMessage = tempDiv.textContent || tempDiv.innerText || "";
         return `${role}: ${cleanMessage}`;
     }).join('\n');
 
-    // 5. 準備 Prompt (核心修正：加入指引上下文)
     const prompt = `
-    【角色設定】
-    你是一位高中中文科老師「陳SIR」，你剛剛為學生分析了作文題目：「${currentGuideTopic}」。
-    你的語氣親切、有見地，善於用具體的例子或生活化的比喻來引導學生深入思考，而不是只給空泛的理論。
-
-    【背景資料：你剛才生成的解題指引內容】
-    (請基於此內容回答學生的問題，不要忘記你剛剛提出的觀點)
-    ---
-    ${currentGuideAnalysis}
-    ---
-
-    【我們剛才的對話紀錄】
-    ${conversationHistoryForPrompt}
-
-    【學生的最新追問】
-    ${userInputText}
-
-    【你的任務】
-    請針對學生的最新追問進行回應。
-    1. 必須緊扣你剛才生成的「解題指引」內容（例如你提到的情感特質或故事種子）。
-    2. 不要使用括號解釋你的目的。
-    3. 請用完整句子回應，字數控制在 200 字以內。
+    【角色設定】你是一位高中中文科老師「陳SIR」。
+    【背景資料】解題指引內容：${currentGuideAnalysis}
+    【對話紀錄】${conversationHistoryForPrompt}
+    【學生追問】${userInputText}
+    【任務】請針對學生追問回應，緊扣剛才的指引，字數200字以內。
     `;
 
    try {
-    const aiResponse = await callAPI(prompt);
-    // 添加這段檢查代碼
-    if (!aiResponse || typeof aiResponse !== 'string') {
-        throw new Error('API 傳回無效回應');
-    }
-    
-    // 6. 更新 UI (將 Markdown 粗體轉為 HTML)
-    let formattedResponse = aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    formattedResponse = formattedResponse.replace(/\n/g, '<br>');
-    aiMessageBubble.innerHTML = formattedResponse;
-    
-    // 存入歷史
-    writingGuideChatHistoryData.push({ sender: 'ai', message: aiResponse });
-} catch (error) {
-    console.error("繼續指引討論時出錯:", error);
-    aiMessageBubble.textContent = error.message.includes("API") ? `今日 API 調用次數已用完。😓` : `抱歉，陳SIR無法回應。😅`;
-} finally {
-    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-    continueBtn.disabled = false;
-}
-}
+        const aiResponse = await callAPI(prompt);
+        if (!aiResponse) throw new Error('API 傳回無效回應');
+        
+        let formattedResponse = aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedResponse = formattedResponse.replace(/\n/g, '<br>');
+        aiMessageBubble.innerHTML = formattedResponse;
+        
+        writingGuideChatHistoryData.push({ sender: 'ai', message: aiResponse });
 
+        // ★★★ 關鍵新增：更新歷史紀錄 ★★★
+        await updateHistoryChat();
+
+    } catch (error) {
+        console.error("繼續指引討論時出錯:", error);
+        aiMessageBubble.textContent = "抱歉，回應失敗。";
+    } finally {
+        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        continueBtn.disabled = false;
+    }
+}
 
 // ==========================================
 // === 修訂：解題指引提交函數 (含追問聊天室功能) ===
@@ -10916,9 +10928,8 @@ async function submitWritingGuide() {
         resultContainer.innerHTML = finalHTML;
 
         // === 儲存歷史紀錄 ===
-        // 儲存時移除聊天室 HTML，以免歷史紀錄過長
-        const historyHTML = finalHTML.split('<div class="canvas-chat-container">')[0]; 
-        saveToHistory("敘事抒情", "解題指引", inputTopic, `題目：${inputTopic}`, historyHTML);
+        // 新的邏輯：完整儲存 (包含聊天室介面)
+await saveToHistory("敘事抒情", "解題指引", inputTopic, `題目：${inputTopic}`, finalHTML);
         
         // 顯示儲存按鈕 (如果有的話)
         hideAllSaveHtmlButtons();
@@ -11034,13 +11045,13 @@ async function submitWriting() {
             let userContentForHistory = `題目：${topic}\n結構：${structureName}`;
             
             // 儲存 HTML 時已經包含了聊天室結構 (由 displayOutlineComment 生成)，這裡直接儲存
-            saveToHistory(
-                "敘事抒情", 
-                "大綱點評", 
-                topic, 
-                userContentForHistory, 
-                document.getElementById("resultCanvasBody").innerHTML
-            );
+           saveToHistory(
+    "敘事抒情", 
+    "大綱點評", 
+    topic, 
+    userContentForHistory, 
+    document.getElementById("resultCanvasBody").innerHTML // 直接存整個 innerHTML
+);
         } 
         // ==========================================
         // 模式二：敘事物象 (★ UI 美化修訂 ★)
@@ -11089,7 +11100,7 @@ async function submitWriting() {
             
             // 儲存時移除聊天室 HTML (以免歷史紀錄過長)
             const historyHTML = elementsHTML.split('<div class="canvas-chat-container">')[0];
-            saveToHistory("敘事抒情", "敘事物象", topic, `題目：${topic}\n取材：${content}`, historyHTML);
+           await saveToHistory("敘事抒情", "敘事物象", topic, `題目：${topic}\n取材：${content}`, elementsHTML);
         } 
         // ==========================================
         // 模式三：文章點評 (保持不變)
@@ -11349,6 +11360,7 @@ function displayOutlineComment(response, content) {
 }
 
 // 替換舊的 submitReading 函式 (修正歷史紀錄儲存問題)
+// 替換舊的 submitReading 函式 (修正歷史紀錄儲存變數錯誤)
 async function submitReading() {
     const submitBtn = document.getElementById('submitReadingBtn');
     submitBtn.disabled = true; 
@@ -11483,10 +11495,16 @@ async function submitReading() {
             openResultCanvas("閱讀理解點評");
             document.getElementById("resultCanvasBody").innerHTML = finalHTML;
             
-            // 儲存時移除聊天室 HTML
-            const historyHTML = finalHTML.split('<div class="canvas-chat-container">')[0];
-            saveToHistory("閱讀", "點評", question, `篇章：${passage}\n題目：${question}\n答案：${studentAnswer}`, historyHTML);
-         
+            // ★★★ 修正這裡 ★★★
+            // 原本錯誤：saveToHistory("閱讀", "指引", ..., guideHTML)
+            // 修正後：使用 "點評" 作為子功能，並儲存 finalHTML
+            saveToHistory(
+                "閱讀", 
+                "點評", 
+                question || "閱讀練習", 
+                `篇章：${passage}\n題目：${question}\n答案：${studentAnswer}`, 
+                finalHTML
+            );
 
         } else { // guide
             const guideParts = result.split("###").map(part => part.trim()).filter(part => part);
@@ -11532,10 +11550,14 @@ async function submitReading() {
             openResultCanvas("閱讀理解指引");
             document.getElementById("resultCanvasBody").innerHTML = guideHTML;
             
-            // 儲存時移除聊天室 HTML
-            const historyHTML = guideHTML.split('<div class="canvas-chat-container">')[0];
-            saveToHistory("閱讀", "指引", question, `篇章：${passage}\n題目：${question}`, historyHTML);
-            document.getElementById('save-reading-html-btn').style.display = 'flex';
+            // ★★★ 修訂處 2 (指引)：加上 await ★★★
+            await saveToHistory(
+                "閱讀", 
+                "指引", 
+                question || "閱讀指引", 
+                `篇章：${passage}\n題目：${question}`, 
+                guideHTML
+            );
         }
 
     } catch (error) {
@@ -11546,6 +11568,7 @@ async function submitReading() {
         hideLoading();
     }
 }
+
 
 // 課外書籍討論功能
 let chatHistory = [];
@@ -11647,67 +11670,47 @@ async function continueArgumentDiscussion() {
     
     const chatHistoryDiv = document.getElementById('argumentChatHistory');
     
-    // 1. 顯示使用者訊息
     const userMessageBubble = document.createElement('div');
     userMessageBubble.className = 'message-bubble user-message';
     userMessageBubble.textContent = userInputText;
     chatHistoryDiv.appendChild(userMessageBubble);
     
-    // 2. 將使用者訊息存入歷史紀錄
     argumentChatHistoryData.push({ sender: 'user', message: userInputText });
     document.getElementById("argumentUserInput").value = "";
     chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
-    // 3. 顯示「正在回應」
     const aiLoadingBubble = document.createElement('div');
     aiLoadingBubble.className = 'message-bubble ai-message';
     aiLoadingBubble.textContent = `${currentReviewerName}正在回應...`;
     chatHistoryDiv.appendChild(aiLoadingBubble);
     chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
-    // 4. 準備完整的對話歷史給 AI
     const conversationHistoryForPrompt = argumentChatHistoryData.map(item => {
         const speaker = item.sender === 'user' ? '我的追問' : '你的上一輪回應';
-        // 清理 message 中的 HTML 標籤，讓 prompt 更乾淨
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = item.message;
         const cleanMessage = tempDiv.textContent || tempDiv.innerText || "";
         return `${speaker}: ${cleanMessage}`;
     }).join('\n---\n');
 
-
     const tone = document.getElementById("argumentWritingTone").value;
     let toneNote = tone === "chen" ? categories["課外書籍"].chatNote : categories["課外書籍"].seriousChatNote;
     
-    // 5. 建立包含完整上下文的 Prompt
-    const prompt = `我是一位高中生，你正在點評我的議論文。
-    ---
-    我的原文：
-    ${currentArgumentArticle}
-    ---
-    這是我們到目前為止的完整對話紀錄：
-    ${conversationHistoryForPrompt}
-    ---
-    請針對我最新的追問，用日常的語言簡潔地回應我，不要過於理論化，必須詳細分析並給出例子。請不要使用括號解釋你的目的。回應字數不要超過180字。
-    教學筆記：${toneNote}`;
+    const prompt = `我是一位高中生，你正在點評我的議論文。\n原文：${currentArgumentArticle}\n對話紀錄：${conversationHistoryForPrompt}\n請針對最新追問回應。${toneNote}`;
     
     try {
         const aiResponse = await callReadingAPI(prompt);
-        
-        // 6. 更新 AI 回應並存入歷史紀錄
-        // 步驟一：將 Markdown 的 **粗體** 語法轉換為 HTML 的 <strong> 標籤
-let formattedResponse = aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-// 步驟二：處理換行符
-formattedResponse = formattedResponse.replace(/\n/g, '<br>');
-
-// 步驟三：將處理好的 HTML 內容放入聊天氣泡
-aiLoadingBubble.innerHTML = formattedResponse;
+        let formattedResponse = aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedResponse = formattedResponse.replace(/\n/g, '<br>');
+        aiLoadingBubble.innerHTML = formattedResponse;
         argumentChatHistoryData.push({ sender: 'ai', message: aiResponse });
+
+        // ★★★ 關鍵新增：更新歷史紀錄 ★★★
+        await updateHistoryChat();
 
     } catch (error) {
         console.error("繼續議論文討論時出錯:", error);
-        aiLoadingBubble.textContent = error.message.includes("API") ? `今日 API 調用次數已用完。😓` : `抱歉，${currentReviewerName}無法回應。😅`;
+        aiLoadingBubble.textContent = "抱歉，回應失敗。";
     } finally {
         chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
         continueBtn.disabled = false;
@@ -11744,21 +11747,10 @@ async function continueWritingDiscussion() {
     const tone = document.getElementById("writingTone").value;
     let toneNote = tone === "chen" ? categories["課外書籍"].chatNote : categories["課外書籍"].seriousChatNote;
     
-    const prompt = `我是一位高中生，你剛剛點評了我的文章。
-    ---
-    我的原文：${currentWritingArticle}
-    ---
-    你的上一輪點評：${currentWritingReview}
-    ---
-    我的追問是：${userInputText}
-    ---
-    請針對我的追問，用日常的語言回應我，不要過於理論化，必須詳細分析並給出例子，然後引導我深入思考。請不要使用括號解釋你的目的，也不要提及你會追問我。請用完整句子回應。回應字數不要超過180字。
-    教學筆記：${toneNote}`;
+    const prompt = `我是一位高中生，你剛剛點評了我的文章。\n原文：${currentWritingArticle}\n點評：${currentWritingReview}\n追問：${userInputText}\n請用日常語言回應，詳細分析並舉例，不要過於理論。${toneNote}`;
     
-    // 顯示「正在回應」
     const aiMessageBubble = document.createElement('div');
     aiMessageBubble.className = 'message-bubble ai-message';
-    // --- 【核心修訂】使用全域變數來顯示動態名稱 ---
     aiMessageBubble.textContent = `${currentReviewerName}正在回應...`;
     writingChatHistoryDiv.appendChild(aiMessageBubble);
     writingChatHistoryDiv.scrollTop = writingChatHistoryDiv.scrollHeight;
@@ -11769,9 +11761,12 @@ async function continueWritingDiscussion() {
         aiMessageBubble.innerHTML = aiResponse.replace(/\n/g, '<br>');
         writingChatHistoryData.push({ sender: 'ai', message: aiResponse });
 
+        // ★★★ 關鍵新增：更新歷史紀錄 ★★★
+        await updateHistoryChat();
+
     } catch (error) {
         console.error("繼續討論時出錯:", error);
-        aiMessageBubble.textContent = error.message.includes("API") ? `今日 API 調用次數已用完。😓` : `抱歉，${currentReviewerName}無法回應。😅`;
+        aiMessageBubble.textContent = "抱歉，回應失敗。";
     } finally {
         writingChatHistoryDiv.scrollTop = writingChatHistoryDiv.scrollHeight;
         continueBtn.disabled = false;
@@ -12049,6 +12044,7 @@ async function submitExpand() {
 
 
 // 提交整合拓展內容
+// 提交整合拓展內容 (已修復儲存邏輯)
 async function submitExpandComment() {
     const submitBtn = document.getElementById('submitExpandBtn');
     submitBtn.disabled = true;
@@ -12058,6 +12054,8 @@ async function submitExpandComment() {
         const title = localStorage.getItem("expandCurrentTitle");
         const theme = localStorage.getItem("expandCurrentTheme");
         const data = localStorage.getItem("expandCurrentData");
+        
+        // 獲取用戶輸入的內容
         const content = document.getElementById("expandContent").value.trim();
         
         if (!theme || !data || !content) {
@@ -12068,13 +12066,13 @@ async function submitExpandComment() {
         const tone = document.getElementById("expandTone").value;
         let toneNote = "";
         if (tone === "chen") {
-            toneNote = "請用幽默詼諧、適時揶揄的語氣回應，**必須使用大量Emoji** 🤪✨，表示揶揄時會用🤌這個EMOJI，偶爾用網絡用語。"; // (省略部分以節省長度，保持原意)
+            toneNote = "請用幽默詼諧、適時揶揄的語氣回應，**必須使用大量Emoji** 🤪✨，表示揶揄時會用🤌這個EMOJI，偶爾用網絡用語。";
         } else {
             toneNote = "請用嚴肅正經的語氣進行點評。";
         }
 
         const note = categories["整合拓展"].commentNote;
-        const prompt = `請根據以下內容進行點評... (省略 prompt 內容，保持不變) ...
+        const prompt = `請根據以下內容進行點評...
 題目：${title || "無"}
 主題句：${theme}
 抄錄資料：${data}
@@ -12117,11 +12115,17 @@ async function submitExpandComment() {
         openResultCanvas("整合拓展點評");
         document.getElementById("resultCanvasBody").innerHTML = finalHTML;
         
-        // 儲存時移除聊天室 HTML
-        const historyHTML = finalHTML.split('<div class="canvas-chat-container">')[0];
-        saveToHistory("整合拓展", "點評", title, `題目：${title}\n主題句：${theme}\n抄錄資料：${data}\n內容：${content}`, historyHTML);
+        // 儲存時移除聊天室 HTML 結構以保持乾淨，或直接儲存也可（saveToHistory 內部會處理輸入框移除）
+        const historyHTML = finalHTML; 
         
-       
+        // ★★★ 關鍵修復：正確呼叫儲存函數 ★★★
+       await saveToHistory(
+            "整合拓展", 
+            "點評", // 確保子功能名稱正確
+            title || "無題目", 
+            `題目：${title}\n主題句：${theme}\n抄錄資料：${data}\n內容：${content}`, 
+            historyHTML
+        );
 
     } catch (error) {
         console.error("提交整合拓展點評時出錯:", error);
@@ -13645,14 +13649,17 @@ async function displayFullCommentWithGrading(containerId, originalApiResponse, l
     const topic = (uniqueIdPrefix === 'narrative') ? localStorage.getItem("currentTopic") : localStorage.getItem("argumentCurrentTopic");
     
     // 使用 captureContainerHTML 確保儲存時雷達圖不消失 (記得要用不轉圖片的修復版)
+    // 使用 captureContainerHTML 確保儲存時雷達圖不消失
     const htmlContent = captureContainerHTML('resultCanvasBody'); 
     
-    saveToHistory(
+     await saveToHistory(
+        // ★★★ 這一行必須保留，不能改！它會自動判斷是敘事還是議論 ★★★
         uniqueIdPrefix === 'narrative' ? "敘事抒情" : "議論", 
+        
         "文章點評", 
         topic || "無題目", 
         `題目：${topic}\n\n文章：${fullTextContent}`, 
-        htmlContent,
+        htmlContent, // 這裡傳入完整的 HTML (含聊天室) 即可
         scoresForDisplay 
     );
 }
@@ -14162,57 +14169,60 @@ function captureContainerHTML(containerId) {
     return clone.innerHTML;
 }
 
-// 1. 修改 saveToHistory：存入 IndexedDB 後自動觸發雲端同步
+
+
+
+	
+// ==========================================
+// === 修訂：儲存紀錄 (強制等待同步完成) ===
+// ==========================================
 async function saveToHistory(category, subFunction, title, userContent, aiContent, scoreData = null) {
     try {
-        // ============================================================
-        // ★★★ 核心修訂：在上傳前徹底移除聊天室/追問區 HTML ★★★
-        // ============================================================
+        // 1. 清理 HTML (移除輸入框等互動元素)
         if (aiContent && typeof aiContent === 'string') {
-            // 建立一個暫時的 DOM 元素來處理 HTML 字串
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = aiContent;
-            
-            // 1. 移除主要的聊天室容器 (.canvas-chat-container)
-            // 使用 querySelectorAll 確保移除頁面上所有可能的聊天室實例
-            const chatContainers = tempDiv.querySelectorAll('.canvas-chat-container');
-            chatContainers.forEach(el => el.remove());
-
-            // 2. 保險起見，移除聊天輸入區 (.canvas-input-area) 和 歷史區 (.canvas-chat-history)
-            // 防止有殘留的 HTML 結構
-            const inputAreas = tempDiv.querySelectorAll('.canvas-input-area');
-            inputAreas.forEach(el => el.remove());
-            
-            const historyBoxes = tempDiv.querySelectorAll('.canvas-chat-history');
-            historyBoxes.forEach(el => el.remove());
-            
-            // 將處理乾淨的 HTML 重新賦值給 aiContent
+            const toRemove = tempDiv.querySelectorAll('.canvas-input-area, #writingGuideChatInputContainer, #writingChatInputContainer, #argumentChatInputContainer, #chatInputContainer, button, .btn-icon-action, .canvas-send-btn');
+            toRemove.forEach(el => el.remove());
             aiContent = tempDiv.innerHTML;
         }
-        // ============================================================
 
         const db = await openHistoryDB();
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
+
+        const ts = new Date().getTime();
+        lastGeneratedTimestamp = ts; // 更新全域時間戳，供聊天室使用
 
         const record = {
             category: category,
             subFunction: subFunction,
             title: title || "無標題",
             userContent: userContent,
-            aiContent: aiContent, // 這裡是已經過濾掉聊天室的內容
+            aiContent: aiContent,
             scoreData: scoreData, 
-            timestamp: new Date().getTime(),
-            dateStr: new Date().toLocaleString('zh-HK', { hour12: false })
+            timestamp: ts,
+            dateStr: new Date().toLocaleString('zh-HK', { hour12: false }),
+            
+            // 初始狀態：False (保護它是新草稿，且告訴 Merge 函數這是本地新增的)
+            isSynced: false,       
+            hasBeenSynced: false   
         };
 
-        store.add(record);
-        console.log("本地紀錄已儲存 (已過濾追問區)");
+        // 使用 Promise 確保寫入 IndexedDB 完成
+        await new Promise((resolve, reject) => {
+            const req = store.add(record);
+            req.onsuccess = resolve;
+            req.onerror = reject;
+        });
+
+        console.log("本地紀錄已建立，開始同步...");
         
-        // 檢查是否已綁定身份，如果是，則自動同步
+        // 觸發同步，這會將這筆新紀錄推上雲端，然後將本地狀態改為 True
         const s = JSON.parse(localStorage.getItem('studentProfile'));
         if (s) {
-            syncHistoryToFirebase(true); 
+            await syncHistoryToFirebase(true); 
+            console.log("同步完成，狀態已更新");
         }
 
     } catch (error) {
@@ -14221,67 +14231,70 @@ async function saveToHistory(category, subFunction, title, userContent, aiConten
 }
 
 
-
-// ==========================================
-// === 智能同步邏輯 (最終修訂版：已修復反引號語法錯誤) ===
-// ==========================================
-
-// ==========================================
-// === 智能同步邏輯 (最終解決版：智能標記) ===
-// ==========================================
-
-
-
-// ==========================================
-// === 即時自動同步監聽器 (防無限迴圈版) ===
-// ==========================================
-
-let autoSyncListenerRef = null;
-let isSyncingLock = false; // 鎖定狀態，防止無限迴圈
-
-function startAutoSyncListener() {
-    const s = JSON.parse(localStorage.getItem('studentProfile'));
-    if (!s) return;
-
-    // 先移除舊的監聽器，避免重複
-    if (autoSyncListenerRef) {
-        autoSyncListenerRef.off();
-    }
-
-    // 監聽路徑：該學生的歷史紀錄
-    // 注意：這裡有反引號 `
-    const path = `students/${s.grade}/${s.class}/${s.name}/history`;
-    autoSyncListenerRef = database.ref(path);
-
-    // 監聽 'value' 事件 (任何新增、修改、刪除都會觸發)
-    autoSyncListenerRef.on('value', (snapshot) => {
-        
-        // 如果目前正在執行同步(由本地發起)，則忽略這次由雲端回傳的訊號
-        if (isSyncingLock) {
-            console.log("忽略自身寫入導致的更新訊號");
-            return;
-        }
-
-        console.log("⚡ 偵測到雲端資料變更 (可能是老師批改或刪除)，準備同步...");
-        
-        // 設定鎖定，避免稍後的寫入動作又觸發監聽器
-        isSyncingLock = true;
-
-        // 執行同步
-        syncHistoryToFirebase(true).then(() => {
-            // 同步完成後，延遲 2 秒再解鎖
-            // 這樣可以過濾掉 Firebase 寫入後的回彈訊號
-            setTimeout(() => {
-                isSyncingLock = false;
-            }, 2000);
-        });
-    });
-}
-
-
 	
-// 1. 主同步函式
-// 1. 主同步函式 (修復版)
+	
+// ==========================================
+// === 1. 合併算法 (修復：嚴格雙向同步與刪除) ===
+// ==========================================
+function mergeHistoryRecords(localRecords, cloudRecords) {
+    console.log("--- [Logic] 執行智能合併 ---");
+    const mergedMap = new Map();
+    
+    // 輔助：生成唯一鍵值 (基於時間戳，這是唯一的 ID)
+    const generateKey = (r) => {
+        const ts = r.timestamp ? Number(r.timestamp) : 0;
+        return `${ts}`; // 簡化 Key，因為時間戳在系統中是唯一的
+    };
+
+    // A. 建立雲端資料索引 (雲端是最高權威)
+    // 雲端存在的資料，我們先全部放進 Map
+    cloudRecords.forEach(record => {
+        const key = generateKey(record);
+        mergedMap.set(key, record);
+    });
+
+    // B. 處理本地資料
+    localRecords.forEach(localRecord => {
+        if (!localRecord) return;
+        const key = generateKey(localRecord);
+        
+        // --- 情況 1：雲端也有這筆資料 ---
+        if (mergedMap.has(key)) {
+            // 關鍵邏輯：如果本地標記為「未同步 (isSynced: false)」，代表本地有新修改 (如聊天追問、編輯)
+            // 這時候我們要用「本地」覆蓋「雲端」
+            if (localRecord.isSynced === false) {
+                // 繼承本地的最新內容，但保留 hasBeenSynced 屬性以防邏輯錯誤
+                localRecord.hasBeenSynced = true; 
+                mergedMap.set(key, localRecord);
+                console.log(`[同步] 本地有新修訂，覆蓋雲端版本: ${localRecord.title}`);
+            }
+            // 否則，如果本地 isSynced: true，我們信任雲端版本 (已在 map 中)，不做動作
+        } 
+        // --- 情況 2：雲端【沒有】這筆資料 (刪除 vs 新增) ---
+        else {
+            // ★★★ 核心判斷：是「新草稿」還是「被刪除」？ ★★★
+            
+            // 如果 hasBeenSynced 為 true，代表這筆資料曾經上傳過雲端。
+            // 現在雲端沒了，唯一的解釋就是「被老師/其他裝置刪除了」。
+            if (localRecord.hasBeenSynced === true) {
+                console.log(`[同步] 偵測到雲端已刪除紀錄: ${localRecord.title}，執行本地同步刪除。`);
+                // 不將其加入 mergedMap，即代表在接下來的步驟中會被刪除
+            } 
+            // 如果 hasBeenSynced 為 false (或 undefined)，代表這是剛生成、還沒來得及上傳的新資料
+            // 我們必須保留它並準備上傳
+            else {
+                console.log(`[同步] 發現未上傳的新紀錄: ${localRecord.title}，準備上傳。`);
+                mergedMap.set(key, localRecord);
+            }
+        }
+    });
+
+    // C. 排序回傳 (按時間倒序)
+    return Array.from(mergedMap.values()).sort((a, b) => b.timestamp - a.timestamp);
+}
+// ==========================================
+// === [DEBUG 版] 核心同步函數 ===
+// ==========================================
 async function syncHistoryToFirebase(isSilent = false) {
     const s = JSON.parse(localStorage.getItem('studentProfile'));
     if (!s) {
@@ -14289,14 +14302,14 @@ async function syncHistoryToFirebase(isSilent = false) {
         return;
     }
     
+    // UI 按鈕狀態處理 (如果是由按鈕觸發)
     let btn = null;
     let originalText = "";
-    // 如果是由按鈕觸發，加入 Loading 效果
     if (!isSilent && typeof event !== 'undefined' && event && event.target) {
         btn = event.target.tagName === 'BUTTON' ? event.target : event.target.closest('button');
         if (btn) {
             originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 智能合併中...';
+            btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
             btn.disabled = true;
         }
     }
@@ -14304,61 +14317,60 @@ async function syncHistoryToFirebase(isSilent = false) {
     try {
         const db = await openHistoryDB();
         
-        // A. 獲取本地資料
+        // A. 讀取本地所有資料
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
-        const localRecords = await new Promise((resolve, reject) => {
+        const localRecords = await new Promise((resolve) => {
             const req = store.getAll();
             req.onsuccess = e => resolve(e.target.result);
             req.onerror = () => resolve([]);
         });
-        
-        // B. 獲取雲端資料 (★ 關鍵修復處 ★)
+
+        // B. 讀取雲端所有資料
         const path = `students/${s.grade}/${s.class}/${s.name}/history`;
         const cloudSnapshot = await database.ref(path).once('value');
-        let cloudData = cloudSnapshot.val();
+        const cloudData = cloudSnapshot.val();
         let cloudRecords = [];
  
-        // ★★★ 強制轉為 Array，防止 Firebase 因刪除產生 "Sparse Array" (物件格式) 導致 .map 報錯 ★★★
         if (cloudData) {
             if (Array.isArray(cloudData)) {
-                // 如果是陣列，過濾掉可能存在的 null (空洞)
                 cloudRecords = cloudData.filter(item => item !== null);
             } else if (typeof cloudData === 'object') {
-                // 如果是物件 (例如 {"1": {...}})，強制轉為陣列
                 cloudRecords = Object.values(cloudData);
             }
         }
         
-        // 給雲端下載的資料貼上「官方認證」標籤
-        cloudRecords = cloudRecords.map(r => {
-            return Object.assign({}, r, { isSynced: true });
-        });
-        
-        console.log(`開始同步：本地 ${localRecords.length} 筆，雲端 ${cloudRecords.length} 筆`);
- 
-        // C. 執行智能合併 (包含刪除判斷)
+        // C. 執行合併運算
         const mergedRecords = mergeHistoryRecords(localRecords, cloudRecords);
+
+        // D. ★★★ 關鍵修復：上傳前淨化 ★★★
+        // 為了避免 Firebase 存到 "hasBeenSynced: false"，我們建立一個專門上傳用的副本
+        // 強制將所有欄位設為 true。這樣 Firebase 永遠只會持有 "已同步" 的狀態。
+        const recordsToUpload = mergedRecords.map(r => ({
+            ...r,
+            isSynced: true,      // 雲端永遠是已同步狀態
+            hasBeenSynced: true  // 雲端永遠是已歸檔狀態
+        }));
+
+        // 寫入雲端 (使用淨化後的數據)
+        await database.ref(path).set(recordsToUpload);
+        console.log(`[DEBUG] 雲端更新完畢 (${recordsToUpload.length} 筆)`);
         
-        // D. 寫回雲端 (更新後的完整清單)
-        await database.ref(path).set(mergedRecords);
-        
-        // E. 寫回本地 (讓本地資料也擁有 isSynced 標籤)
+        // E. 寫回本地 (這裡會將本地狀態也鎖定為 true)
         await updateLocalHistoryWithMergedData(mergedRecords, db);
+        console.log(`[DEBUG] 本地更新完畢`);
         
-        console.log(`同步完成：合併後共 ${mergedRecords.length} 筆`);
+        if (!isSilent) alert("✅ 資料同步完成！");
         
-        if (!isSilent) alert("✅ 智能同步完成！本地與雲端紀錄已合併。");
-        
-        // F. 刷新 UI (如果在列表頁面)
-        if (document.getElementById('historyLevel3') && document.getElementById('historyLevel3').style.display === 'flex') {
-            if (typeof currentSubFunctionFilter !== 'undefined') {
-                enterHistoryList(currentSubFunctionFilter, typeof currentThemeIndex !== 'undefined' ? currentThemeIndex : 1);
-            }
+        // F. 刷新畫面 (如果正在瀏覽列表)
+        const level3 = document.getElementById('historyLevel3');
+        if (level3 && level3.style.display !== 'none' && typeof currentSubFunctionFilter !== 'undefined') {
+             const themeIndex = typeof currentThemeIndex !== 'undefined' ? currentThemeIndex : 1;
+             enterHistoryList(currentSubFunctionFilter, themeIndex);
         }
- 
+        
     } catch (err) {
-        console.error("智能同步失敗:", err);
+        console.error("[DEBUG] 同步錯誤:", err);
         if (!isSilent) alert("❌ 同步失敗: " + err.message);
     } finally {
         if (btn && originalText) {
@@ -14368,50 +14380,11 @@ async function syncHistoryToFirebase(isSilent = false) {
     }
 }
 
-// 2. 輔助函式：合併算法 (核心邏輯)
-function mergeHistoryRecords(localRecords, cloudRecords) {
-    const mergedMap = new Map();
-    
-    // 生成唯一鍵
-    const generateKey = (r) => {
-        return `${r.category}_${r.subFunction}_${r.title}_${r.timestamp}`;
-    };
 
-    // A. 雲端資料是「權威」，無條件放入
-    cloudRecords.forEach(record => {
-        mergedMap.set(generateKey(record), record);
-    });
-
-    // B. 處理本地資料
-    localRecords.forEach(localRecord => {
-        if(!localRecord) return;
-        const key = generateKey(localRecord);
-        
-        // 檢查雲端是否已經有這筆資料
-        if (mergedMap.has(key)) {
-            // 如果雲端有，代表兩邊都有，我們保留雲端的 (因為它帶有最新的 isSynced 標籤)
-        } else {
-            // ★★★ 核心判斷：為什麼雲端沒有這筆資料？ ★★★
-            
-            if (localRecord.isSynced) {
-                // 情況 1：這筆資料本地有「已同步」標籤，但雲端卻找不到。
-                // 結論：這代表「老師在雲端刪掉了它」。
-                // 動作：捨棄它 (等於在本地也刪除)。
-                console.log(`移除已在雲端被刪除的項目：${localRecord.title}`);
-            } else {
-                // 情況 2：這筆資料本地「沒有」標籤。
-                // 結論：這代表「這是學生離線新寫的，還沒上傳過」。
-                // 動作：保留它 (準備上傳)。
-                mergedMap.set(key, localRecord);
-            }
-        }
-    });
-
-    // C. 轉回陣列並排序
-    return Array.from(mergedMap.values()).sort((a, b) => b.timestamp - a.timestamp);
-}
-
-// 3. 輔助函式：更新本地 IndexedDB
+	
+// ==========================================
+// === 2. 更新本地資料庫 (修復：鎖定同步狀態) ===
+// ==========================================
 async function updateLocalHistoryWithMergedData(mergedRecords, db) {
     let localDb = db;
     if (!localDb) {
@@ -14422,21 +14395,23 @@ async function updateLocalHistoryWithMergedData(mergedRecords, db) {
         const transaction = localDb.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         
-        // A. 清空本地：避免 ID 衝突
+        // A. 清空本地：確保被判定刪除的資料真的從 IndexedDB 消失
         await new Promise((resolve, reject) => {
             const req = store.clear();
             req.onsuccess = resolve;
             req.onerror = reject;
         });
 
-        // B. 寫入資料
+        // B. 寫入合併後的資料
         for (const record of mergedRecords) {
-            // 移除舊的 ID，讓 IndexedDB 重新分配，解決 id 衝突
-            delete record.id; 
+            // 移除舊 ID，讓 IndexedDB 重新分配 (選用，視乎你的 ID 依賴性，通常保留較好，但重新分配可避免 key 衝突)
+            // 若你的系統嚴重依賴 id 來做 DOM 操作，建議保留 id：
+            // if (!record.id) delete record.id; 
             
-            // ★★★ 關鍵：寫入本地時，確保加上 isSynced: true ★★★
-            // 這樣下次同步時，系統就知道這筆資料「已經存在過雲端」了
-            record.isSynced = true;
+            // ★★★ 關鍵設定：本地鎖定 ★★★
+            // 因為這是與雲端協商後的最終結果：
+            record.isSynced = true;       // 本地內容 = 雲端內容
+            record.hasBeenSynced = true;  // 這筆資料已在雲端掛號
             
             store.put(record); 
         }
@@ -14445,11 +14420,74 @@ async function updateLocalHistoryWithMergedData(mergedRecords, db) {
             transaction.oncomplete = resolve;
         });
     } catch(e) {
-        console.error("更新本地資料庫錯誤", e);
+        console.error("本地資料庫更新錯誤", e);
     }
 }
 
-// ================= UI 導航邏輯 =================
+// ==========================================
+// === 4. 自動同步監聽器 (二合一終極版) ===
+// ==========================================
+
+// 定義全域變數以儲存監聽器參照
+let autoSyncListenerRef = null;    // 用於歷史紀錄
+let autoProfileListenerRef = null; // 用於身份狀態 (轉班)
+let isSyncingLock = false;         // 同步鎖，防止無限迴圈
+
+function startAutoSyncListener() {
+    const s = JSON.parse(localStorage.getItem('studentProfile'));
+    if (!s) return;
+
+    // --- 部分 A：歷史紀錄同步監聽 (修復刪除不同步問題) ---
+    
+    // 1. 先移除舊的歷史監聽器
+    if (autoSyncListenerRef) {
+        autoSyncListenerRef.off();
+    }
+
+    // 2. 設定路徑
+    const historyPath = `students/${s.grade}/${s.class}/${s.name}/history`;
+    autoSyncListenerRef = database.ref(historyPath);
+
+    // 3. 監聽 'value' 事件
+    autoSyncListenerRef.on('value', (snapshot) => {
+        
+        // 如果目前正在執行本地發起的同步，忽略這次訊號
+        if (isSyncingLock) {
+            console.log("忽略自身寫入導致的回彈訊號");
+            return;
+        }
+
+        console.log("⚡ 偵測到雲端歷史變更 (含刪除動作)，立即同步...");
+        
+        // 設定鎖定
+        isSyncingLock = true;
+
+        // 執行同步 (這裡的 syncHistoryToFirebase 配合 mergeHistoryRecords 會處理刪除邏輯)
+        syncHistoryToFirebase(true).then(() => {
+            // 延遲解鎖，過濾 Firebase 寫入後的延遲回彈
+            setTimeout(() => {
+                isSyncingLock = false;
+            }, 2000);
+        });
+    });
+
+    // --- 部分 B：身份狀態監聽 (保留你原有的轉班功能) ---
+    if (autoProfileListenerRef) autoProfileListenerRef.off();
+    const profilePath = `students/${s.grade}/${s.class}/${s.name}/profile`;
+    autoProfileListenerRef = database.ref(profilePath);
+    autoProfileListenerRef.on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (!val) {
+            autoProfileListenerRef.off(); 
+            if (autoSyncListenerRef) autoSyncListenerRef.off();
+            findStudentNewLocation(s.name);
+        } else if (!val.number || val.number === "") {
+            promptForNewClassNumber(s, profilePath);
+        }
+    });
+    
+    console.log("✅ 雙重監聽器 (歷史 + 身份) 已啟動");
+}
 
 // 變數儲存當前導航狀態
 let currentCategoryFilter = null;
@@ -15094,23 +15132,25 @@ async function deleteHistoryItem(id) {
         recordRequest.onsuccess = async function(event) {
             const recordToDelete = event.target.result;
             
-            // 如果本地已經找不到了，直接刷新 UI 並退出
-            if (!recordToDelete) {
-                enterHistoryList(currentSubFunctionFilter);
-                return;
-            }
-
             // 2. 執行本地刪除
             store.delete(id);
             
             // 3. 執行雲端刪除 (如果已登入)
-            if (s) {
-                // 注意：這裡有反引號 `
+            if (s && recordToDelete) {
                 const path = `students/${s.grade}/${s.class}/${s.name}/history`;
                 
-                // 讀取雲端目前所有資料
+                // 我們讀取一次雲端，過濾掉該筆資料，然後寫回 (這樣最安全)
                 const snapshot = await database.ref(path).once('value');
-                const cloudRecords = snapshot.val() || [];
+                const cloudData = snapshot.val();
+                let cloudRecords = [];
+                
+                if (cloudData) {
+                    if (Array.isArray(cloudData)) {
+                        cloudRecords = cloudData.filter(item => item !== null);
+                    } else if (typeof cloudData === 'object') {
+                        cloudRecords = Object.values(cloudData);
+                    }
+                }
                 
                 // 過濾掉我們要刪除的那一筆 (利用 timestamp 比對)
                 const updatedRecords = cloudRecords.filter(r => r.timestamp !== recordToDelete.timestamp);
@@ -15121,7 +15161,10 @@ async function deleteHistoryItem(id) {
             }
 
             // 4. 刷新介面
-            enterHistoryList(currentSubFunctionFilter);
+            // 如果是在列表中，刷新列表；如果是在詳情頁，可能需要關閉
+            if (typeof currentSubFunctionFilter !== 'undefined') {
+                enterHistoryList(currentSubFunctionFilter);
+            }
         };
         
     } catch (e) { 
@@ -15129,7 +15172,6 @@ async function deleteHistoryItem(id) {
         alert("刪除失敗，請重試。");
     }
 }
-
 	
 // === 修改版：清空所有紀錄 (加入即時刷新邏輯) ===
 async function clearAllHistory() {
@@ -15204,7 +15246,10 @@ async function clearAllHistory() {
     }
 }
 // 優化後的查看詳情函數
-// === 優化版：查看詳情 (修復學習報告雷達圖) ===
+// ==========================================================================
+// ==========================================================================
+// === 3. [學生端] 歷史詳情修復：加入學習報告雷達圖的重繪邏輯 (修復版) ===
+// ==========================================================================
 async function viewHistoryDetail(id) {
     try {
         const db = await openHistoryDB();
@@ -15215,6 +15260,10 @@ async function viewHistoryDetail(id) {
         request.onsuccess = function(event) {
             const record = event.target.result;
             if (record) {
+                // ★★★ 關鍵修復：鎖定當前紀錄的時間戳 ★★★
+                // 這樣稍後如果在視窗內進行 AI 追問，系統才知道要更新哪一筆紀錄
+                lastGeneratedTimestamp = record.timestamp;
+
                 // 1. 計算主題色
                 let themeIndex = 1;
                 if (HISTORY_STRUCTURE[record.category]) {
@@ -15239,42 +15288,55 @@ async function viewHistoryDetail(id) {
                 let contentHTML = '';
  
                 // 3. 處理使用者輸入內容
-                if (record.category !== "學習報告" && record.userContent) {
-                    const rawText = record.userContent;
-                    const lines = rawText.split('\n');
-                    let parsedHTML = `<div class="history-parsed-container ${themeClass}">`;
-                    let currentLabel = '輸入內容';
-                    let currentContent = [];
-                    const labelRegex = /^(.{2,10}?)[：:](.*)$/;
- 
-                    lines.forEach((line) => {
-                        const match = line.match(labelRegex);
-                        if (match) {
-                            if (currentContent.length > 0) {
-                                parsedHTML += `<div class="history-item-block"><div class="history-item-label">${currentLabel}</div><div class="history-item-content">${currentContent.join('\n')}</div></div>`;
-                            }
-                            currentLabel = match[1].trim();
-                            const restOfLine = match[2].trim();
-                            currentContent = restOfLine ? [restOfLine] : [];
-                        } else {
-                            if (line.trim() !== "") currentContent.push(line);
-                        }
-                    });
- 
-                    if (currentContent.length > 0 || lines.length === 0) {
-                         const finalContent = currentContent.length > 0 ? currentContent.join('\n') : rawText;
-                         parsedHTML += `<div class="history-item-block"><div class="history-item-label">${currentLabel}</div><div class="history-item-content">${finalContent}</div></div>`;
-                    }
-                    parsedHTML += '</div>';
-                    
-                    contentHTML += `
-                        <div id="edit-user-content-${record.id}"
-                             ondblclick="enableHistoryEdit(this)"
-                             title="雙擊即可修訂內容"
-                             style="background:#fff; padding:20px; border-radius:12px; margin-bottom:25px; border:1px solid #eee; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
-                            ${parsedHTML}
-                        </div>`;
-                }
+              // 請在 viewHistoryDetail 函式內，找到處理 userContent 的部分並替換為以下代碼：
+
+// 3. 處理使用者輸入內容
+if (record.category !== "學習報告" && record.userContent) {
+    const rawText = record.userContent;
+    const lines = rawText.split('\n');
+    
+    // ★★★ [新增] 判斷是否為議論指引，如果是，加入專屬 class ★★★
+    let specificLayoutClass = "";
+    if (record.category === "議論" && record.subFunction === "指引") {
+        specificLayoutClass = "argument-guide-layout";
+    }
+    
+    // 將專屬 class 加入到容器中
+    let parsedHTML = `<div class="history-parsed-container ${themeClass} ${specificLayoutClass}">`;
+    
+    let currentLabel = '輸入內容';
+    let currentContent = [];
+    const labelRegex = /^(.{2,10}?)[：:](.*)$/;
+
+    lines.forEach((line) => {
+        const match = line.match(labelRegex);
+        if (match) {
+            if (currentContent.length > 0) {
+                // 注意：這裡保持原本的結構不變
+                parsedHTML += `<div class="history-item-block"><div class="history-item-label">${currentLabel}</div><div class="history-item-content">${currentContent.join('\n')}</div></div>`;
+            }
+            currentLabel = match[1].trim();
+            const restOfLine = match[2].trim();
+            currentContent = restOfLine ? [restOfLine] : [];
+        } else {
+            if (line.trim() !== "") currentContent.push(line);
+        }
+    });
+
+    if (currentContent.length > 0 || lines.length === 0) {
+         const finalContent = currentContent.length > 0 ? currentContent.join('\n') : rawText;
+         parsedHTML += `<div class="history-item-block"><div class="history-item-label">${currentLabel}</div><div class="history-item-content">${finalContent}</div></div>`;
+    }
+    parsedHTML += '</div>';
+    
+    contentHTML += `
+        <div id="edit-user-content-${record.id}"
+             ondblclick="enableHistoryEdit(this)"
+             title="雙擊即可修訂內容"
+             style="background:#fff; padding:20px; border-radius:12px; margin-bottom:25px; border:1px solid #eee; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+            ${parsedHTML}
+        </div>`;
+}
  
                 // 4. 處理 AI 生成內容
                 if (record.aiContent) {
@@ -15288,7 +15350,7 @@ async function viewHistoryDetail(id) {
                         </div>`;
                 }
                 
-                // 5. 顯示繳交按鈕
+                // 5. 顯示繳交按鈕 (學習報告除外)
                 const s = JSON.parse(localStorage.getItem('studentProfile'));
                 if (s && record.category !== "學習報告") {
                     contentHTML += `
@@ -15315,37 +15377,38 @@ async function viewHistoryDetail(id) {
                 modalContent.innerHTML = contentHTML;
                 document.getElementById('historyModal').style.display = 'flex';
  
-                // 8. ★★★ 核心修復：學習報告的圖表重繪邏輯 ★★★
+                // 8. 重繪圖表邏輯 (含學習報告)
                 setTimeout(() => {
-                    // A. 單篇文章的雷達圖 (原有邏輯)
-                    if (record.scoreData && record.scoreData.radar) {
+                    if (record.category !== "學習報告" && record.scoreData && record.scoreData.radar) {
                         const canvasEl = modalContent.querySelector('.radar-chart-container canvas') || modalContent.querySelector('canvas');
                         if (canvasEl) {
                             renderSingleRadarChart(canvasEl, record.scoreData.radar);
                         }
                     }
-                    
-                    // B. 學習報告的雷達圖 (新邏輯)
-                    // 學習報告的資料結構是 scoreData["敘事抒情"].radar
                     else if (record.category === "學習報告" && record.scoreData) {
-                        // 嘗試尋找敘事抒情的 Canvas ID (reportNarrativeChart)
-                        const narrCanvas = modalContent.querySelector('#reportNarrativeChart');
-                        if (narrCanvas && record.scoreData["敘事抒情"]) {
-                            renderReportRadarChart(narrCanvas, record.scoreData["敘事抒情"].radar);
+                        if (record.scoreData["敘事抒情"] && record.scoreData["敘事抒情"].radar) {
+                            const narrBadge = modalContent.querySelector('.badge-narrative');
+                            if (narrBadge) {
+                                const section = narrBadge.closest('.report-section');
+                                const narrCanvas = section ? section.querySelector('canvas') : null;
+                                if (narrCanvas) renderReportRadarChart(narrCanvas, record.scoreData["敘事抒情"].radar);
+                            }
                         }
-
-                        // 嘗試尋找議論的 Canvas ID (reportArgumentChart)
-                        const argCanvas = modalContent.querySelector('#reportArgumentChart');
-                        if (argCanvas && record.scoreData["議論"]) {
-                            renderReportRadarChart(argCanvas, record.scoreData["議論"].radar);
+                        if (record.scoreData["議論"] && record.scoreData["議論"].radar) {
+                            const argBadge = modalContent.querySelector('.badge-argument');
+                            if (argBadge) {
+                                const section = argBadge.closest('.report-section');
+                                const argCanvas = section ? section.querySelector('canvas') : null;
+                                if (argCanvas) renderReportRadarChart(argCanvas, record.scoreData["議論"].radar);
+                            }
                         }
                     }
-                }, 100);
+                }, 150);
             }
         };
     } catch (e) { console.error(e); }
 }
-
+	
 // 輔助函式：繪製單篇雷達圖
 function renderSingleRadarChart(canvasEl, radarData) {
     const dataValues = [
@@ -15450,15 +15513,13 @@ function findIdByTimestamp(timestamp) {
 
 
 // ==========================================
-// === 最終修復：儲存修訂 + 刷新背景列表 ===
+// === 4. 儲存修訂 (修復：版本更替與同步) ===
 // ==========================================
- 
 async function saveHistoryEdits(id) {
     const userContentEl = document.getElementById(`edit-user-content-${id}`);
     const aiContentEl = document.getElementById(`edit-ai-content-${id}`);
     const saveBtn = document.getElementById(`history-save-btn-${id}`);
  
-    // UI 鎖定
     const originalIcon = saveBtn.innerHTML;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     saveBtn.disabled = true;
@@ -15468,7 +15529,6 @@ async function saveHistoryEdits(id) {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         
-        // 1. 讀取本地舊紀錄
         const getRequest = store.get(id);
         
         getRequest.onsuccess = function(event) {
@@ -15476,27 +15536,35 @@ async function saveHistoryEdits(id) {
             if (record) {
                 const oldTimestamp = record.timestamp;
  
-                // 2. 更新內容
+                // 更新內容
                 if (userContentEl) record.userContent = userContentEl.innerText;
                 if (aiContentEl) record.aiContent = aiContentEl.innerHTML;
  
-                // 更新時間戳
+                // 更新時間戳 (視為新版，避免與舊版衝突)
                 const newTimestamp = new Date().getTime();
                 record.timestamp = newTimestamp;
                 record.dateStr = new Date().toLocaleString('zh-HK', { hour12: false });
                 
-                if (record.isSynced) delete record.isSynced;
+                // ★★★ 關鍵修訂：狀態邏輯 ★★★
+                // 因為我們改了 timestamp，這在技術上是一筆「全新」的紀錄
+                // 舊的那筆 (oldTimestamp) 我們會手動從雲端刪除
+                
+                // 標記為未同步，讓它上傳
+                record.isSynced = false; 
+                
+                // 這裡設為 false 是為了保護這筆「新誕生」的紀錄
+                // 確保它在第一次成功上傳前，不會因為雲端沒有它而被誤刪
+                record.hasBeenSynced = false; 
  
-                // 3. 寫回本地
                 const putRequest = store.put(record);
                 
                 putRequest.onsuccess = async function() {
-                    console.log("本地紀錄已更新");
+                    console.log("本地紀錄已修訂");
  
-                    // 4. 刪除雲端舊檔
                     const s = JSON.parse(localStorage.getItem('studentProfile'));
                     if (s) {
                         try {
+                            // 主動刪除雲端舊的時間戳版本 (如果存在)
                             const path = `students/${s.grade}/${s.class}/${s.name}/history`;
                             const snapshot = await database.ref(path).once('value');
                             const cloudData = snapshot.val();
@@ -15504,6 +15572,7 @@ async function saveHistoryEdits(id) {
                             if (cloudData) {
                                 cloudRecords = Array.isArray(cloudData) ? cloudData.filter(x=>x) : Object.values(cloudData);
                             }
+                            // 過濾掉舊紀錄
                             const updatedRecords = cloudRecords.filter(r => r.timestamp !== oldTimestamp);
                             await database.ref(path).set(updatedRecords);
                         } catch (cloudErr) {
@@ -15511,39 +15580,23 @@ async function saveHistoryEdits(id) {
                         }
                     }
                     
-                    // 5. 觸發同步 (這會重整 ID)
+                    // 立即上傳新版本
                     await syncHistoryToFirebase(true);
  
-                    // 6. 找回新 ID
+                    // 更新 UI 並鎖定新 ID
                     const newId = await findIdByTimestamp(newTimestamp);
-                    
                     if (newId) {
-                        // A. 重新加載視窗內容 (更新按鈕 ID)
-                        await viewHistoryDetail(newId);
+                        // 更新全域時間戳，確保後續追問是針對新版本
+                        lastGeneratedTimestamp = newTimestamp;
                         
-                        // ★★★ 關鍵新增：在背景刷新列表，讓卡片 ID 也同步更新 ★★★
-                        // 檢查目前是否在列表頁面，如果是，就刷新它
+                        await viewHistoryDetail(newId);
                         if (typeof currentSubFunctionFilter !== 'undefined' &&
                             document.getElementById('historyLevel3').style.display !== 'none') {
-                            
-                            // 保持當前的主題色索引，如果沒有則預設 1
                             const themeIndex = typeof currentThemeIndex !== 'undefined' ? currentThemeIndex : 1;
-                            
-                            // 靜默刷新列表 (這會更新卡片上的 onclick ID)
                             enterHistoryList(currentSubFunctionFilter, themeIndex);
                         }
- 
-                        alert("✅ 修訂已儲存！\n資料已同步，您可以直接按「繳交」。");
-                    } else {
-                        alert("✅ 修訂已儲存！\n請重新打開紀錄以進行繳交。");
-                        closeHistoryModal();
-                        // 刷新列表以顯示新紀錄
-                        if (typeof currentSubFunctionFilter !== 'undefined') {
-                            enterHistoryList(currentSubFunctionFilter, currentThemeIndex || 1);
-                        }
+                        alert("✅ 修訂已儲存並同步！");
                     }
-                    
-                    if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
                 };
             } else {
                 alert("錯誤：找不到原始紀錄。");
@@ -15683,37 +15736,84 @@ function enableTitleEditing(titleEl, id) {
     });
 }
 
-/**
- * 更新 IndexedDB 中的標題
- */
-async function updateHistoryTitleInDB(id, newTitle) {
+// ==========================================
+// === 3. 聊天室/追問 即時存檔 (修復：狀態保護) ===
+// ==========================================
+async function updateHistoryChat() {
+    if (!lastGeneratedTimestamp) {
+        console.warn("未設定時間戳，無法儲存對話。");
+        return; 
+    }
+
+    // 尋找內容來源 (兼容畫布與歷史詳情視窗)
+    let sourceElement = document.getElementById("resultCanvasBody");
+    const isCanvasHidden = !sourceElement || sourceElement.style.display === 'none' || sourceElement.offsetParent === null || sourceElement.innerHTML.trim() === "";
+    
+    if (isCanvasHidden) {
+        sourceElement = document.getElementById("historyModalContent");
+    }
+
+    if (!sourceElement) return;
+    
+    // 複製並清理 HTML (移除輸入框與按鈕)
+    const clone = sourceElement.cloneNode(true);
+    const inputAreas = clone.querySelectorAll('.canvas-input-area, #writingGuideChatInputContainer, #writingChatInputContainer, #argumentChatInputContainer, #chatInputContainer');
+    inputAreas.forEach(el => el.remove());
+    
+    const buttons = clone.querySelectorAll('button, .btn-icon-action, .canvas-send-btn, .history-save-btn, .morandi-save-float-btn');
+    buttons.forEach(el => el.remove());
+
+    const clonedCanvases = clone.querySelectorAll('canvas');
+    clonedCanvases.forEach((canvas) => {
+        canvas.style.width = '100%';
+        canvas.style.height = '350px';
+        canvas.style.display = 'block';
+        canvas.removeAttribute('id');
+    });
+
+    const newAiContent = clone.innerHTML;
+
     try {
         const db = await openHistoryDB();
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
-        
-        // 1. 獲取舊紀錄
-        const getRequest = store.get(id);
-        
-        getRequest.onsuccess = function(event) {
+        const index = store.index('timestamp'); 
+
+        const request = index.get(lastGeneratedTimestamp);
+
+        request.onsuccess = function(event) {
             const data = event.target.result;
             if (data) {
-                // 2. 修改標題
-                data.title = newTitle;
+                // A. 更新內容 (保留最新的聊天紀錄)
+                data.aiContent = newAiContent;
                 
-                // 3. 寫回 DB
-                const putRequest = store.put(data);
-                putRequest.onsuccess = function() {
-                    console.log(`紀錄 ID ${id} 標題已更新為: ${newTitle}`);
+                // B. ★★★ 關鍵狀態設定 ★★★
+                // 1. 設為 false：告訴 Merge 函數「我有新內容，請用我覆蓋雲端」。
+                data.isSynced = false; 
+                
+                // 2. 設為 true：告訴 Merge 函數「我不是新草稿，我已經存在過了，不要誤刪我」。
+                // (這可以防止在極端情況下雲端剛好也沒資料時的邏輯錯亂)
+                data.hasBeenSynced = true; 
+
+                const updateRequest = store.put(data);
+                
+                updateRequest.onsuccess = function() {
+                    console.log("聊天紀錄已更新 (準備上傳)");
+                    
+                    // 立即觸發靜默同步，將最新的對話推送到雲端
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    if (s) {
+                        syncHistoryToFirebase(true); 
+                    }
                 };
             }
         };
     } catch (e) {
-        console.error("更新標題失敗:", e);
-        alert("標題更新失敗，請重試。");
+        console.error("更新聊天紀錄失敗:", e);
     }
 }
 
+	
 // === 雙擊/單擊 衝突解決方案 ===
 let titleClickTimer = null;
 
@@ -16083,56 +16183,9 @@ async function findStudentNewLocation(studentName) {
     alert("⚠️ 系統資料庫已更新或找不到您的位置。\n\n請重新登入，並確保選擇正確的「年級」與「班別」。");
     handleStudentLogout();
 }
-// 2. 覆寫：自動同步監聽器 (新增 Profile 監聽，實現自動觸發)
-// 用於儲存 Profile 監聽器，避免重複
-let autoProfileListenerRef = null;
+// 2. 覆寫：自動同步監聽器 (新增 Profile 監聽，實現自動觸發);
 
-function startAutoSyncListener() {
-    const s = JSON.parse(localStorage.getItem('studentProfile'));
-    if (!s) return;
 
-    // --- A. 歷史紀錄同步 (保持原樣) ---
-    if (autoSyncListenerRef) autoSyncListenerRef.off();
-    const historyPath = `students/${s.grade}/${s.class}/${s.name}/history`;
-    autoSyncListenerRef = database.ref(historyPath);
-    autoSyncListenerRef.on('value', (snapshot) => {
-        if (isSyncingLock) return;
-        console.log("⚡ 偵測到雲端歷史變更，執行同步...");
-        isSyncingLock = true;
-        syncHistoryToFirebase(true).then(() => {
-            setTimeout(() => { isSyncingLock = false; }, 2000);
-        });
-    });
-
-    // --- B. ★ 新增：身份狀態監聽 (這是自動彈出的關鍵) ---
-    if (autoProfileListenerRef) autoProfileListenerRef.off();
-    
-    const profilePath = `students/${s.grade}/${s.class}/${s.name}/profile`;
-    autoProfileListenerRef = database.ref(profilePath);
-
-    autoProfileListenerRef.on('value', (snapshot) => {
-        const val = snapshot.val();
-
-        if (!val) {
-            // 情況 1: 資料消失 (代表老師剛剛執行了轉班/升班操作)
-            console.log("⚠️ 偵測到當前班級資料消失，正在搜尋新位置...");
-            
-            // 立即停止監聽舊路徑，防止報錯
-            autoProfileListenerRef.off(); 
-            if (autoSyncListenerRef) autoSyncListenerRef.off();
-
-            // 觸發全校搜尋 -> 這裡會呼叫上面的 findStudentNewLocation -> 彈出班號視窗
-            findStudentNewLocation(s.name);
-        } 
-        else if (!val.number || val.number === "") {
-            // 情況 2: 資料還在，但班號被清空 (可能是原地升班或資料重置)
-            console.log("⚠️ 偵測到班號需更新，彈出視窗...");
-            promptForNewClassNumber(s, profilePath);
-        }
-    });
-    
-    console.log("✅ 實時狀態監聽器已啟動");
-}
 	
 // 1. 初始化班號選項 (請放在 initDSECalendar 或 DOMContentLoaded 內執行，或是直接放在 script 最後)
 function initClassNumbers() {
@@ -17086,7 +17139,7 @@ async function generateHistoryReport() {
                 return;
             }
 
-            // === 1. 數據聚合 (保持不變) ===
+            // === 1. 數據聚合 ===
             const stats = {
                 "敘事抒情": { count: 0, scores: { content: 0, expression: 0, structure: 0 }, radar: { 立意: 0, 取材: 0, 扣題: 0, 詳略: 0, 詞彙: 0, 文學性: 0 }, snippets: [] },
                 "議論": { count: 0, scores: { content: 0, expression: 0, structure: 0 }, radar: { 立意: 0, 取材: 0, 扣題: 0, 詳略: 0, 詞彙: 0, 文學性: 0 }, snippets: [] },
@@ -17098,6 +17151,7 @@ async function generateHistoryReport() {
 
             records.forEach(r => {
                 if (!r.aiContent) return;
+                // 提取摘要
                 const cleanText = r.aiContent.replace(/<[^>]*>?/gm, ' ');
                 let snippet = "";
                 const critiqueIndex = cleanText.indexOf("點評");
@@ -17108,28 +17162,50 @@ async function generateHistoryReport() {
                 if (stats[r.category]) {
                     stats[r.category].snippets.push(summary);
                 }
+
+                // 提取分數 (針對敘事和議論)
                 if (r.category === "敘事抒情" || r.category === "議論") {
                     try {
-                        const doc = parser.parseFromString(r.aiContent, 'text/html');
-                        const contentInput = doc.querySelector('input[id*="ContentScore"]');
-                        const exprInput = doc.querySelector('input[id*="ExpressionScore"]');
-                        const structInput = doc.querySelector('input[id*="StructureScore"]');
-                        if (contentInput && exprInput && structInput) {
+                        // 優先使用結構化存儲的 scoreData
+                        if (r.scoreData) {
                             stats[r.category].count++;
-                            const c = parseInt(contentInput.value || 5);
-                            const e = parseInt(exprInput.value || 5);
-                            const s = parseInt(structInput.value || 5);
+                            const c = r.scoreData.content || 0;
+                            const e = r.scoreData.expression || 0;
+                            const s = r.scoreData.structure || 0;
                             stats[r.category].scores.content += c;
                             stats[r.category].scores.expression += e;
                             stats[r.category].scores.structure += s;
-                            stats[r.category].radar.立意 += (c * 0.6 + s * 0.4);
-                            stats[r.category].radar.取材 += (c * 0.8 + e * 0.2);
-                            stats[r.category].radar.扣題 += (c * 0.7 + s * 0.3);
-                            stats[r.category].radar.詳略 += (s * 0.7 + c * 0.3);
-                            stats[r.category].radar.詞彙 += e;
-                            stats[r.category].radar.文學性 += e;
+                            
+                            if (r.scoreData.radar) {
+                                stats[r.category].radar.立意 += (r.scoreData.radar.立意 || 0);
+                                stats[r.category].radar.取材 += (r.scoreData.radar.取材 || 0);
+                                stats[r.category].radar.扣題 += (r.scoreData.radar.扣題 || 0);
+                                stats[r.category].radar.詳略 += (r.scoreData.radar.詳略 || 0);
+                                stats[r.category].radar.詞彙 += (r.scoreData.radar.詞彙 || 0);
+                                stats[r.category].radar.文學性 += (r.scoreData.radar.文學性 || 0);
+                            }
+                        } else {
+                            // 舊數據回退機制：嘗試從 HTML 解析 input value
+                            const doc = parser.parseFromString(r.aiContent, 'text/html');
+                            const contentInput = doc.querySelector('input[id*="ContentScore"]');
+                            if (contentInput) {
+                                stats[r.category].count++;
+                                const c = parseInt(contentInput.value || 5);
+                                const e = parseInt(doc.querySelector('input[id*="ExpressionScore"]')?.value || 5);
+                                const s = parseInt(doc.querySelector('input[id*="StructureScore"]')?.value || 5);
+                                stats[r.category].scores.content += c;
+                                stats[r.category].scores.expression += e;
+                                stats[r.category].scores.structure += s;
+                                // 舊數據估算雷達
+                                stats[r.category].radar.立意 += (c * 0.6 + s * 0.4);
+                                stats[r.category].radar.取材 += (c * 0.8 + e * 0.2);
+                                stats[r.category].radar.扣題 += (c * 0.7 + s * 0.3);
+                                stats[r.category].radar.詳略 += (s * 0.7 + c * 0.3);
+                                stats[r.category].radar.詞彙 += e;
+                                stats[r.category].radar.文學性 += e;
+                            }
                         }
-                    } catch (e) { }
+                    } catch (e) { console.error("Parse Error", e); }
                 }
             });
 
@@ -17186,8 +17262,7 @@ async function generateHistoryReport() {
 
             showLoading("陳SIR 正在生成學習報告...");
 
-            // Prompt 結構
-             const prompt = `你現在扮演一位資深的中文科老師「陳SIR」。請根據學生以下的歷史紀錄，生成一份「學習概況報告」。
+            const prompt = `你現在扮演一位資深的中文科老師「陳SIR」。請根據學生以下的歷史紀錄，生成一份「學習概況報告」。
 
 ### 學生歷史紀錄摘要：
 ${promptData}
@@ -17212,7 +17287,6 @@ ${promptData}
        </div>
    </div>
    
-   <!-- 分隔線 -->
    <div class="report-separator"></div>
 
 2. **分範疇分析**：(針對有數據的範疇)
@@ -17230,7 +17304,6 @@ ${promptData}
        <div class="report-quote-author">—— 陳SIR</div>
    </div>`;
 
-            // 呼叫 API
             const reportHTML = await callReadingAPI(prompt);
 
             // === 4. 組合與渲染 ===
@@ -17273,6 +17346,7 @@ ${promptData}
                                     </div>
                                     <div class="grading-radar" style="padding:15px;">
                                         <h3>能力分佈</h3>
+                                        <!-- 注意：這裡的 canvas 是空的，需要JS繪製 -->
                                         <div class="radar-chart-container" style="height:250px;">
                                             <canvas id="${uniqueId}Chart"></canvas>
                                         </div>
@@ -17290,49 +17364,23 @@ ${promptData}
 
             resultBody.innerHTML = finalOutput + tempDiv.innerHTML;
 
-            // === 5. 渲染圖表並存檔 (重點修訂) ===
+            // === 5. 渲染當前畫面的圖表並存檔 ===
             setTimeout(() => {
-                // 這裡保留原本的圖表渲染邏輯，讓學生當下看得到
+                // A. 渲染當前使用者看到的畫面
                 ["敘事抒情", "議論"].forEach(cat => {
                     if (finalStats[cat]) {
                         const uniqueId = cat === "敘事抒情" ? "reportNarrative" : "reportArgument";
                         const ctxEl = document.getElementById(`${uniqueId}Chart`);
                         if (ctxEl) {
-                            new Chart(ctxEl.getContext('2d'), {
-                                type: 'radar',
-                                data: {
-                                    labels: ['立意', '取材', '扣題', '詳略', '詞彙', '文學性'],
-                                    datasets: [{
-                                        label: '平均能力',
-                                        data: finalStats[cat].radar,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                        borderWidth: 2,
-                                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                                        pointBorderColor: '#fff'
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    scales: {
-                                        r: {
-                                            angleLines: { display: true },
-                                            suggestedMin: 0, suggestedMax: 10,
-                                            pointLabels: { font: { size: 12, family: "'Noto Serif TC', serif" } },
-                                            ticks: { stepSize: 2, display: false }
-                                        }
-                                    },
-                                    plugins: { legend: { display: false } }
-                                }
-                            });
+                            renderReportRadarChart(ctxEl, finalStats[cat].radar);
                         }
                     }
                 });
 
-                // ★★★ 存檔 (傳入 finalStats 作為原始數據) ★★★
+                // B. 存檔：這裡最重要！
+                // 我們使用 captureContainerHTML 儲存 HTML 結構
+                // 並且將 finalStats 作為最後一個參數傳入 saveToHistory
                 setTimeout(() => {
-                    // captureContainerHTML 已經在外部修改為不轉圖片
                     const htmlToSave = captureContainerHTML('resultCanvasBody');
                     saveToHistory(
                         "學習報告", 
@@ -17340,9 +17388,9 @@ ${promptData}
                         `學習報告 (${today})`, 
                         `系統自動生成之學習歷程分析。\n綜合評級：${overallLevel}`, 
                         htmlToSave,
-                        finalStats // ★★★ 關鍵：傳入報告的原始統計數據，讓老師端可以動態繪圖
+                        finalStats // ★★★ 關鍵：這將成為 record.scoreData ★★★
                     );
-                    console.log("報告已自動存檔並同步 (含數據)。");
+                    console.log("報告已自動存檔並同步 (含統計數據)。");
                 }, 500);
 
             }, 100);
@@ -17692,75 +17740,96 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 3. 記錄訪問 (Log Visit) - 僅增加 Visits 和 Unique
-    async function logVisitOnce() {
-        if (typeof firebase === 'undefined' || !database) return;
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
         
-        const { y, m, d } = getDateParts();
-        const identity = getIdentity();
-        const uid = identity.id;
+        // 1. 全校路徑 (stats_global/YYYY/MM/DD)
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
 
-        // Session 鎖
-        const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
-        if (sessionStorage.getItem(sessionKey)) return; 
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
 
-        // 檢查 Tracking
-        const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
-        
-        try {
-            const snap = await trackingRef.once('value');
-            const isFirstTimeToday = !snap.exists();
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
 
-            const updates = {};
-            const increment1 = firebase.database.ServerValue.increment(1);
-            
-            const globalPath = `stats_view/${y}/${m}/${d}/global`;
-            const classPath = identity.type === 'student' 
-                ? `stats_view/${y}/${m}/${d}/classes/${identity.grade}${identity.class}` 
-                : null;
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            // 注意：Firebase Key 不能含 '.' '$' '#' '[' ']'，名字需已在 getIdentity 處理過
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
 
             if (isFirstTimeToday) {
                 updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
                 updates[`${globalPath}/unique`] = increment1;
-                if (classPath) updates[`${classPath}/unique`] = increment1;
-                console.log("📍 [Stats] 新增訪客記錄");
+                updates[`${classPath}/unique`] = increment1;
+                // 個別學生不需要 unique，因為他就是一個人
             }
-
-            updates[`${globalPath}/visits`] = increment1;
-            if (classPath) updates[`${classPath}/visits`] = increment1;
-
-            await database.ref().update(updates);
-            sessionStorage.setItem(sessionKey, 'true');
-            console.log("📍 [Stats] 訪問次數已上傳");
-
-        } catch (e) {
-            console.error("Stats Error:", e);
-        }
-    }
-
-    // 4. 上傳 1 分鐘 (固定 +60s)
-    function uploadOneMinute() {
-        if (typeof firebase === 'undefined' || !database) return;
-        
-        logVisitOnce(); // 確保有点名
-
-        const { y, m, d } = getDateParts();
-        const identity = getIdentity();
-        
-        // 這裡就是你要的邏輯：觸發一次就是 +60秒 (1分鐘)
-        console.log(`⬆️ [Stats] 滿足時長條件，上傳 +60s`);
-
-        const updates = {};
-        const increment60 = firebase.database.ServerValue.increment(60);
-
-        updates[`stats_view/${y}/${m}/${d}/global/duration`] = increment60;
-
-        if (identity.type === 'student') {
-            updates[`stats_view/${y}/${m}/${d}/classes/${identity.grade}${identity.class}/duration`] = increment60;
+        } else {
+            // 訪客
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
         }
 
-        database.ref().update(updates).catch(e => console.error(e));
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
     }
+}
+
+// 4. 上傳 1 分鐘 (分流版)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); // 確保有點名
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const studentKey = identity.id.split('_').pop();
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全校
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+        
+        // 2. 班級
+        updates[`stats_classes/${classKey}/${y}/${m}/${d}/duration`] = increment60;
+        
+        // 3. 學生
+        updates[`stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`] = increment60;
+    }
+
+    database.ref().update(updates).catch(e => console.error(e));
+}
 
     // 5. 計時器啟動 (還原你的邏輯)
     function startTimer() {
